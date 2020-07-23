@@ -4,14 +4,17 @@ class NeuralNetwork {
     constructor(...args) {
         if (args.length < 2)
             throw new Error("Not enough arguments")
-        this.layers = args.reduce((acc, layer) => [...acc, Array(layer).fill(0)], [])
+        this.layers = []
+        for (let i = 0; i < args.length; i++) 
+            this.layers.push(new Matrix(args[i], 1))
+
         this.weights = []
-        for (let i = 0; i < layers.length - 1; i++)
-            weights.push(new Matrix(layers[i + 1].length, layers[i].length))
+        for (let i = 0; i < this.layers.length - 1; i++)
+            this.weights.push(new Matrix(this.layers[i + 1].row, this.layers[i].row))
 
         this.bias = []
-        for (let i = 1; i < layers.length; i++)
-            weights.push(new Matrix(layers[i].length, 1))
+        for (let i = 1; i < this.layers.length; i++)
+            this.bias.push(new Matrix(this.layers[i].row, 1))
     }
 
     feedforward(inputs) {
