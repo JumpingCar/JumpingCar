@@ -45,7 +45,7 @@ export default class Matrix {
         if (mat1.column !== mat2.row)
             throw new Error("Sizes of matrices are invalid!")
 
-        const newMatrix = new Matrix(mat1.row, mat2.column)
+        const newMatrix = Matrix.zero(mat1.row, mat2.column)
         for (let i = 0; i < newMatrix.row; i++)
             for (let j = 0; j < newMatrix.column; j++)
                 for (let k = 0; k < mat1.column; k++)
