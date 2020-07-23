@@ -18,11 +18,19 @@ class NeuralNetwork {
     }
 
     feedforward(inputs) {
-        if (inputs.length !== this.layers[0].length)
+        if (inputs.length !== this.layers[0].row)
             throw new Error("Input count does not match input layer nodes!")
 
-        this.layers[0] = inputs
+        this.layers[0] = Matrix.from(inputs.map(n => [n]))
 
-        for (let i = 0; i < )
+        for (let i = 1; i < this.layers.length; i++) 
+            this.layers[i] = Matrix.sigmoid(
+                Matrix.add(
+                    Matrix.dot(this.weights[i - 1], this.layers[i - 1]),
+                    this.bias[i - 1]
+                ) 
+            )
+ 
+        return this.layers[this.layers.length - 1]
     }
 }
