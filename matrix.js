@@ -64,6 +64,33 @@ export default class Matrix {
         return matrix
     }
 
+    static zero(row, column) {
+        const matrix = new Matrix(row, column)
+
+        for (let i = 0; i < row; i++)
+            for (let j = 0; j < column; j++)
+                matrix.matrix[i][j] = 0
+
+        return matrix
+    }
+
+    static apply(mat, func) {
+        if (!(mat instanceof Matrix))
+            throw new Error("Argument must be a Matrix!")
+
+        const matrix = new Matrix(mat.row, mat.column)
+
+        for (let i = 0; i < matrix.row; i++)
+            for (let j = 0; j < matrix.column; j++)
+                matrix.matrix[i][j] = func(mat.matrix[i][j])
+        
+        return matrix
+    }
+
+    static sigmoid(mat) {
+        return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x))))
+    }
+
     toString() {
         return '[\n  ' + this.matrix.map(row => row.map(e => e.toString().padStart(3, ' ')).join(' ')).join('\n  ') + '\n]'
     }
