@@ -58,28 +58,28 @@ class NeuralNetwork {
         }
     }
 
-    static crossover(nn1, nn2) {
-        const parentGene1 = nn1.exportGenes()
-        const parentGene2 = nn2.exportGenes()
+    static crossover(nn1:NeuralNetwork, nn2:NeuralNetwork) {
+        const parentGene1 : number[] = nn1.exportGenes()
+        const parentGene2 : number[] = nn2.exportGenes()
         if (parentGene1.length != parentGene2.length)
             throw new Error("Wrong Arity")
 
-        let children = []
+        let children : number[][] = []
 
 
         //Parent : 2 new children
         children = children.concat([parentGene1, parentGene2])
 
         //1 point Crossover : 2 new children
-        let child1 = []
-        let child2 = []
-        let pivot1 = Math.floor(Math.random() * parentGene1.length)
+        let child1 : number[] = []
+        let child2 : number[] = []
+        let pivot1 : number = Math.floor(Math.random() * parentGene1.length)
 
-        for (let i = 0; i < pivot; i++) {
+        for (let i = 0; i < pivot1; i++) {
             child1.push(parentGene1[i])
             child2.push(parentGene2[i])
         }
-        for (let i = pivot; i < parentGene1.length; i++) {
+        for (let i = pivot1; i < parentGene1.length; i++) {
             child1.push(parentGene2[i])
             child2.push(parentGene1[i])
         }
@@ -87,20 +87,20 @@ class NeuralNetwork {
         children = children.concat([child1, child2])
 
         //2 point Crossover : 2 new children
-        let child1 = []
-        let child2 = []
-        let pivot1 = Math.floor(Math.random() * parentGene1.length)
-        let pivot2 = Math.floor(Math.random() * parentGene1.length)
+        child1 = []
+        child2 = []
+        pivot1 = Math.floor(Math.random() * parentGene1.length)
+        let pivot2 : number = Math.floor(Math.random() * parentGene1.length)
 
         for (let i = 0; i < Math.min(pivot1, pivot2); i++) {
             child1.push(parentGene1[i])
             child2.push(parentGene2[i])
         }
-        for (let i = min(pivot1, pivot2); i < max(pivot1, pivot2); i++) {
+        for (let i = Math.min(pivot1, pivot2); i < Math.max(pivot1, pivot2); i++) {
             child1.push(parentGene2[i])
             child2.push(parentGene1[i])
         }
-        for (let i = max(pivot1, pivot2); i < parentGene1.length; i++) {
+        for (let i = Math.max(pivot1, pivot2); i < parentGene1.length; i++) {
             child1.push(parentGene1[i])
             child2.push(parentGene2[i])
         }
@@ -108,9 +108,9 @@ class NeuralNetwork {
         children = children.concat([child1, child2])
 
         //uniform Crossover : 2 new children
-        let child1 = []
-        let child2 = []
-        let change = []
+        child1 = []
+        child2 = []
+        let change : number[] = []
         for (let i = 0; i < parentGene1.length; i++) {
             change.push(Math.floor(Math.random()*2)) // 'change' is array of 0 or 1.
         }
