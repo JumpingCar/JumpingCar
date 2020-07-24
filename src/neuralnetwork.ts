@@ -1,6 +1,6 @@
-import Matrix from './matrix.js'
+import Matrix from './matrix'
 
-class NeuralNetwork {
+export default class NeuralNetwork {
     layers: Matrix[]
     weights: Matrix[]
     bias: Matrix[]
@@ -126,7 +126,6 @@ class NeuralNetwork {
         }
 
         children = children.concat([child1, child2])
-
 
         return children // total 8 new children
     }
