@@ -48,30 +48,14 @@ export default class Track {
         p.background(230)
         p.translate(p.width / 2 - this.sections[0].x, p.height / 2 - this.sections[0].y)
 
-        p.fill(230)
-        for (let i = 0; i < this.hull.length; i++) {
-            const next = (i + 1) % this.hull.length
-
-            p.curve(
-                this.controlPoints[i][0].x, this.controlPoints[i][0].y,
-                this.hull[i].x, this.hull[i].y,
-                this.hull[next].x, this.hull[next].y,
-                this.controlPoints[i][1].x, this.controlPoints[i][1].y
-            )
-        }
-
-        p.fill(0, 255, 0)
         p.stroke(0, 0, 255)
         for (let i = 0; i < this.sections.length; i++) {
+            const next = (i + 1) % this.sections.length
             p.line(this.sections[i].x1, this.sections[i].y1, this.sections[i].x2, this.sections[i].y2)
-            p.circle(this.sections[i].x, this.sections[i].y, 8)
+            p.line(this.sections[i].x1, this.sections[i].y1, this.sections[next].x1, this.sections[next].y1)
+            p.line(this.sections[i].x2, this.sections[i].y2, this.sections[next].x2, this.sections[next].y2)
         }
         p.stroke(0)
-
-        p.fill(255, 0, 0)
-        for (let i = 0; i < this.hull.length; i++) {
-            p.circle(this.hull[i].x, this.hull[i].y, 10)
-        }
     }
 
     initializeConvexHull(): void {
