@@ -1,17 +1,21 @@
 export default class Matrix {
+    matrix: number[][]
+    row: number
+    column: number
+
     // randomly initializes a matrix of the given row and column with random values of range [-1, 1)
-    constructor(row, column) {
+    constructor(row: number, column: number) {
         this.matrix = Array(row).fill(0).map(_ => Array(column).fill(Math.random() * 2 - 1))
         this.row = row
         this.column = column
     }
 
-    add(other) {
+    add(other: Matrix) {
         Matrix.add(this, other)
     }
 
-    dot(other) {
-        Matrix.multiply(this, other)
+    dot(other: Matrix) {
+        Matrix.dot(this, other)
     }
 
     // flattens the matrix into a 1d array
@@ -20,7 +24,7 @@ export default class Matrix {
     }
 
     // applies values from a flat array
-    construct(flatArray) {
+    construct(flatArray: number[]) {
         if (flatArray.length !== this.row * this.column)
             throw new Error("Flat array length invalid!")
 
@@ -29,10 +33,7 @@ export default class Matrix {
                 this.matrix[i][j] = flatArray[this.column * i + j]
     }
 
-    static add(mat1, mat2) {
-        if (!(mat1 instanceof Matrix && mat2 instanceof Matrix))
-            throw new Error("Arguments must be matrices!")
-
+    static add(mat1: Matrix, mat2: Matrix) {
         if (!(mat1.row === mat2.row && mat1.column === mat2.column))
             throw new Error("Sizes of matrices are different!")
 
@@ -47,7 +48,7 @@ export default class Matrix {
         return newMatrix
     }
 
-    static dot(mat1, mat2) {
+    static dot(mat1: Matrix, mat2: Matrix) {
         if (!(mat1 instanceof Matrix && mat2 instanceof Matrix))
             throw new Error("Arguments must be matrices!")
 
@@ -63,7 +64,7 @@ export default class Matrix {
         return newMatrix
     }
 
-    static from(array) {
+    static from(array: number[][]) {
         const matrix = new Matrix(array.length, array[0].length)
 
         for (let i = 0; i < matrix.row; i++)
@@ -73,7 +74,7 @@ export default class Matrix {
         return matrix
     }
 
-    static zero(row, column) {
+    static zero(row: number, column: number) {
         const matrix = new Matrix(row, column)
 
         for (let i = 0; i < row; i++)
@@ -83,10 +84,7 @@ export default class Matrix {
         return matrix
     }
 
-    static apply(mat, func) {
-        if (!(mat instanceof Matrix))
-            throw new Error("Argument must be a Matrix!")
-
+    static apply(mat: Matrix, func: (x: number) => number) {
         const matrix = new Matrix(mat.row, mat.column)
 
         for (let i = 0; i < matrix.row; i++)
@@ -96,7 +94,7 @@ export default class Matrix {
         return matrix
     }
 
-    static sigmoid(mat) {
+    static sigmoid(mat: Matrix) {
         return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x))))
     }
 

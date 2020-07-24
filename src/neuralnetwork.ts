@@ -1,6 +1,10 @@
 import Matrix from './matrix.js'
 
 class NeuralNetwork {
+    layers: Matrix[]
+    weights: Matrix[]
+    bias: Matrix[]
+
     constructor(...args) {
         if (args.length < 2)
             throw new Error("Not enough arguments")
@@ -42,7 +46,7 @@ class NeuralNetwork {
 
     importGenes(genes) {
         let count = 0
-        
+
         for (let i = 0; i < this.weights.length; i++) {
             this.weights[i].construct(genes.slice(count, count + this.weights[i].row * this.weights[i].column))
             count += this.weights[i].row * this.weights[i].column
@@ -59,13 +63,13 @@ class NeuralNetwork {
         const parentGene2 = nn2.exportGenes()
         if (parentGene1.length != parentGene2.length)
             throw new Error("Wrong Arity")
-        
+
         let children = []
-        
+
 
         //Parent : 2 new children
         children = children.concat([parentGene1, parentGene2])
-        
+
         //1 point Crossover : 2 new children
         let child1 = []
         let child2 = []
@@ -120,7 +124,7 @@ class NeuralNetwork {
                 child2.push(parentGene1[i])
             }
         }
-            
+
         children = children.concat([child1, child2])
 
 
