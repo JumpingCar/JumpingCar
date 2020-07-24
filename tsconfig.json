@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "removeComments": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "outDir": "./build",
+        "sourceMap": true
+    },
+    "include": [ "./src/**/*" ],
+    "exclude": [ "node_modules" ]
+}
