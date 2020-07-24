@@ -5,7 +5,7 @@ class NeuralNetwork {
     weights: Matrix[]
     bias: Matrix[]
 
-    constructor(...args) {
+    constructor(...args: number[]) {
         if (args.length < 2)
             throw new Error("Not enough arguments")
         this.layers = []
@@ -21,7 +21,7 @@ class NeuralNetwork {
             this.bias.push(new Matrix(this.layers[i].row, 1))
     }
 
-    feedforward(inputs) {
+    feedforward(inputs: number[]) {
         if (inputs.length !== this.layers[0].row)
             throw new Error("Input count does not match input layer nodes!")
 
@@ -44,7 +44,7 @@ class NeuralNetwork {
         return this.bias.reduce((flattened, b) => [...flattened, ...b.flatten()], weights_flattened)
     }
 
-    importGenes(genes) {
+    importGenes(genes: number[]) {
         let count = 0
 
         for (let i = 0; i < this.weights.length; i++) {
