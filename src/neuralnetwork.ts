@@ -158,4 +158,6 @@ export default class NeuralNetwork {
         return children.concat([child1, child2]) // genesList gets 2 new children.
     }
 
+    //crossover와 mutation을 거치면 2명의 부모로 부터 10명의 새로운 자식들이 태어남.
+    //100명의 자식을 만들고 싶으면 2명의 부모 10쌍을 select하면 됨. 
 }
