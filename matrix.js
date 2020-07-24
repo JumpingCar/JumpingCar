@@ -2,6 +2,8 @@ export default class Matrix {
     // randomly initializes a matrix of the given row and column with random values of range [-1, 1)
     constructor(row, column) {
         this.matrix = Array(row).fill(0).map(_ => Array(column).fill(Math.random() * 2 - 1))
+        this.row = row
+        this.column = column
     }
 
     add(other) {
@@ -12,12 +14,19 @@ export default class Matrix {
         Matrix.multiply(this, other)
     }
 
-    get row() {
-        return this.matrix.length
+    // flattens the matrix into a 1d array
+    flatten() {
+        return this.matrix.reduce((flattened, row) => [...flattened, ...row], [])
     }
 
-    get column() {
-        return this.matrix[0].length
+    // applies values from a flat array
+    construct(flatArray) {
+        if (flatArray.length !== this.row * this.column)
+            throw new Error("Flat array length invalid!")
+
+        for (let i = 0; i < this.row; i++)
+            for (let j = 0; j < this.column; j++)
+                this.matrix[i][j] = flatArray[this.column * i + j]
     }
 
     static add(mat1, mat2) {
@@ -83,7 +92,7 @@ export default class Matrix {
         for (let i = 0; i < matrix.row; i++)
             for (let j = 0; j < matrix.column; j++)
                 matrix.matrix[i][j] = func(mat.matrix[i][j])
-        
+
         return matrix
     }
 
