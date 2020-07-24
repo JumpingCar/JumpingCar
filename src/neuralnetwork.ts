@@ -127,7 +127,37 @@ export default class NeuralNetwork {
 
         children = children.concat([child1, child2])
 
-        return children // total 8 new children
+        return children // total 8 new children.
     }
 
+    static mutation(genesList : number[][]) {
+        let children : number[][] = genesList
+        const mut1 : number = Math.floor(Math.random() * genesList.length)
+        const mut2 : number = Math.floor(Math.random() * genesList.length)
+        let child1 : number[] = genesList[mut1]
+        let child2 : number[] = genesList[mut2]
+        let pivot1 : number[]
+        let pivot2 : number[]
+
+        for (let i = 0; i < child1.length; i++) {
+            pivot1.push(Math.floor(Math.random()*2)) // 'pivot1' is array of 0 or 1.
+            pivot2.push(Math.floor(Math.random()*2)) // 'pvito2' is array of 0 or 1.
+        }
+
+        for (let i = 0; i < child1.length; i++) {
+            if (pivot1[i] == 1) {
+                child1[i] = (genesList[mut1][i]*(-1)) // change sign.
+            }
+        }
+        for (let i = 0; i < child2.length; i++) {
+            if (pivot2[i] == 1) {
+                child2[i] = (genesList[mut2][i]*(-1)) // change sign.
+            }
+        }
+        
+        return children.concat([child1, child2]) // genesList gets 2 new children.
+    }
+
+    //crossover와 mutation을 거치면 2명의 부모로 부터 10명의 새로운 자식들이 태어남.
+    //100명의 자식을 만들고 싶으면 2명의 부모 10쌍을 select하면 됨. 
 }
