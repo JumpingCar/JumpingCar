@@ -63,10 +63,10 @@ export default class Track {
         p.background(230)
         p.translate(p.width / 2, p.height / 2)
 
-        p.fill(255)
-        for (let i = 0; i < this.points.length; i++) {
-            p.circle(this.points[i].x, this.points[i].y, 10)
-        }
+        // p.fill(255)
+        // for (let i = 0; i < this.points.length; i++) {
+        //     p.circle(this.points[i].x, this.points[i].y, 10)
+        // }
 
         p.fill(0)
         for (let i = 0; i < this.hull.length; i++) {
@@ -79,8 +79,8 @@ export default class Track {
 
             p.stroke(255, 0, 0)
             // p.circle(this.controlPoints[i][0].x, this.controlPoints[i][0].y, 10)
-            p.line(this.controlPoints[i][0].x, this.controlPoints[i][0].y, this.hull[next].x, this.hull[next].y)
-            p.line(this.controlPoints[i][1].x, this.controlPoints[i][1].y, this.hull[i].x, this.hull[i].y)
+            // p.line(this.controlPoints[i][0].x, this.controlPoints[i][0].y, this.hull[next].x, this.hull[next].y)
+            // p.line(this.controlPoints[i][1].x, this.controlPoints[i][1].y, this.hull[i].x, this.hull[i].y)
             // p.circle(this.controlPoints[i][1].x, this.controlPoints[i][1].y, 10)
             p.stroke(0)
             p.curve(
@@ -90,6 +90,24 @@ export default class Track {
                 this.controlPoints[i][1].x, this.controlPoints[i][1].y
             )
         }
+
+        p.fill(0, 255, 0)
+        p.stroke(0, 0, 255)
+        for (let i = 0; i < this.hull.length; i++) {
+            const next = (i + 1) % this.hull.length
+            for (let j = 0; j <= 6; j++) {
+                const x = p.curvePoint(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / 6)
+                const y = p.curvePoint(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / 6)
+
+                const tx = p.curveTangent(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / 6)
+                const ty = p.curveTangent(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / 6)
+                const angle = p.atan2(ty, tx) - p.PI / 2.0
+                p.line(x - p.cos(angle) * 20, y - p.sin(angle) * 20, x + p.cos(angle) * 20, y + p.sin(angle) * 20)
+
+                p.circle(x, y, 8)
+            }
+        }
+        p.stroke(0)
     }
 
     pushApart(p: p5): void {
@@ -116,10 +134,10 @@ export default class Track {
 
             const angle = p.acos(p5.Vector.dot(curToPrev, curToNext) / (curToPrev.mag() * curToNext.mag()))
 
-            if (angle >= 5 / 9 * p.PI)
+            if (angle >= 2 / 3 * p.PI)
                 continue
 
-            const theta = -5 / 9 * p.PI + angle
+            const theta = -2 / 3 * p.PI + angle
 
             this.hull[next] = p5.Vector.add(this.hull[i], p.createVector(
                 curToNext.x * p.cos(theta) - curToNext.y * p.sin(theta),
@@ -145,10 +163,16 @@ export default class Track {
                 dirVec.x * p.sin(-rotationAngle) + dirVec.y * p.cos(-rotationAngle)
             )
 
-            // true if outer, false if inner
-            const curCP = p5.Vector.sub(this.hull[i], this.curve[i] ? cwVec : ccVec)
             const nextCP = p5.Vector.add(this.hull[next], this.curve[i] ? ccVec : cwVec)
-            this.controlPoints.push([ curCP, nextCP ])
+            if (i === 0) {
+                this.controlPoints.push([ null, nextCP ])
+            } else {
+                const parVec = p5.Vector.sub(this.controlPoints[i - 1][1], this.hull[i - 1])
+                const cp1 = p5.Vector.sub(this.hull[next], parVec)
+                this.controlPoints.push([ cp1, nextCP ])
+            }
         }
+
+        this.controlPoints[0][0] = p5.Vector.sub(this.hull[0], p5.Vector.sub(this.controlPoints[this.controlPoints.length - 1][1], this.hull[this.hull.length - 1]))
     }
 }
