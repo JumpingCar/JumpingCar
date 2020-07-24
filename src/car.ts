@@ -60,19 +60,21 @@ export class Car {
             for (let wall of walls) {
                 const pt = ray.cast(p, wall)
                 if (pt) { // pt의 의미?
+                    p.stroke(255, 0, 0)
+                    p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     const d = p5.Vector.dist(this.pos, pt)
                     if(d < record && d < this.sight) {
                         record = d;
                     }
                 }
             }
-            if (record < 2) {
+            if (record < 5) {
                 this.dead = true
             }
         }
     }
     show(p:p5) {
-        //p.stroke(255, 100);
+        // p.stroke(255);
         p.fill(204, 102, 0)
         //p.strokeWeight(2);
         p.ellipse(this.pos.x, this.pos.y, 16)
@@ -83,11 +85,11 @@ export class Car {
 
     makeray(p:p5){
         this.rays = []
-        this.angle = this.vel.angleBetween(p.createVector(1, 0))
-        //this.rays.push(new Ray(this.pos, this.angle))
-        // for (let a = this.angle - p.PI/4 ; a < this.angle + p.PI/2 ; a+= p.PI/4) { //-45, 0 45도 3개의 ray
-        //     this.rays.push(new Ray(this.pos, a))
-        // }
+        this.angle = -this.vel.angleBetween(p.createVector(1, 0))
+        this.rays.push(new Ray(this.pos, this.angle))
+        for (let a = this.angle - p.PI/4 ; a < this.angle + p.PI/2 ; a+= p.PI/4) { //-45, 0 45도 3개의 ray
+            this.rays.push(new Ray(this.pos, a))
+        }
     }
     
     
