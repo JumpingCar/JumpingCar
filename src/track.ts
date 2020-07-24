@@ -80,14 +80,9 @@ export default class Track {
 
     public draw(p: p5): void {
         p.background(230)
-        p.translate(p.width / 2, p.height / 2)
+        p.translate(p.width / 2 - this.sections[0].x, p.height / 2 - this.sections[0].y)
 
-        p.fill(0)
-        for (let i = 0; i < this.hull.length; i++) {
-            p.circle(this.hull[i].x, this.hull[i].y, 10)
-        }
         p.fill(230)
-
         for (let i = 0; i < this.hull.length; i++) {
             const next = (i + 1) % this.hull.length
 
@@ -101,25 +96,20 @@ export default class Track {
 
         p.fill(0, 255, 0)
         p.stroke(0, 0, 255)
-        for (let i = 0; i < this.hull.length; i++) {
-            const next = (i + 1) % this.hull.length
-            const distance = p5.Vector.sub(this.hull[next], this.hull[i]).mag()
-            const steps = Math.floor(distance / this.maxDistance * 15)
-            for (let j = 0; j < steps; j++) {
-                const x = p.curvePoint(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / steps)
-                const y = p.curvePoint(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
-                const tx = p.curveTangent(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / steps)
-                const ty = p.curveTangent(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
-                const angle = p.atan2(ty, tx) - p.PI / 2.0
-                p.line(x - p.cos(angle) * 10, y - p.sin(angle) * 10, x + p.cos(angle) * 10, y + p.sin(angle) * 10)
-                p.circle(x, y, 8)
-            }
+        for (let i = 0; i < this.sections.length; i++) {
+            p.line(this.sections[i].x1, this.sections[i].y1, this.sections[i].x2, this.sections[i].y2)
+            p.circle(this.sections[i].x, this.sections[i].y, 8)
         }
         p.stroke(0)
+
+        p.fill(255, 0, 0)
+        for (let i = 0; i < this.hull.length; i++) {
+            p.circle(this.hull[i].x, this.hull[i].y, 10)
+        }
     }
 
     pushApart(p: p5): void {
-        const dist = 50
+        const dist = 200
         for (let i = 0; i < this.hull.length; i++)
         for (let j = i + 1; j < this.hull.length; j++)
             if (this.hull[i].dist(this.hull[j]) < dist) {
@@ -184,5 +174,27 @@ export default class Track {
                 this.hull[this.hull.length - 1]
             )
         )
+
+        this.sections = []
+        for (let i = 0; i < this.hull.length; i++) {
+            const next = (i + 1) % this.hull.length
+            const distance = p5.Vector.sub(this.hull[next], this.hull[i]).mag()
+            const steps = Math.floor(distance / this.maxDistance * 10)
+            for (let j = 1; j < steps; j++) {
+                const x = p.curvePoint(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / steps)
+                const y = p.curvePoint(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
+                const tx = p.curveTangent(this.controlPoints[i][0].x, this.hull[i].x, this.hull[next].x, this.controlPoints[i][1].x, j / steps)
+                const ty = p.curveTangent(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
+                const angle = p.atan2(ty, tx) - p.PI / 2.0
+                this.sections.push({
+                    x1: x - p.cos(angle) * 30,
+                    y1: y - p.sin(angle) * 30,
+                    x2: x + p.cos(angle) * 30,
+                    y2: y + p.sin(angle) * 30,
+                    x: x,
+                    y: y
+                })
+            }
+        }
     }
 }
