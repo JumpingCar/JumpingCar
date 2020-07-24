@@ -3,13 +3,18 @@ import * as p5 from 'p5'
 export default class Track {
     points: p5.Vector[]
     hull: p5.Vector[]
+    controlPoints: p5.Vector[][]
+    curve: boolean[]
 
     public setup(p: p5): void {
         p.background(230)
-        const pointCount = Math.floor(Math.random() * 10 + 10)
+        const pointCount = Math.floor(Math.random() * 20 + 10)
         this.points = []
         for (let i = 0; i < pointCount; i++)
-            this.points.push(p.createVector(0.5 * (Math.random() * p.width - p.width / 2), 0.5 * (Math.random() * p.height - p.height / 2)))
+            this.points.push(p.createVector(
+                0.5 * (Math.random() * p.width  - p.width  / 2),
+                0.5 * (Math.random() * p.height - p.height / 2)
+            ))
 
         this.points.sort((a: p5.Vector, b: p5.Vector): number => a.x - b.x)
         this.initializeConvexHull()
@@ -17,6 +22,7 @@ export default class Track {
             this.fixAngles(p)
             this.pushApart(p)
         }
+        this.initializeCurve(p)
     }
 
     initializeConvexHull(): void {
@@ -48,12 +54,16 @@ export default class Track {
             currentVertex = nextVertex
             nextVertex = leftMost
         }
+
+        if (this.hull.length % 2 === 1)
+            this.hull = this.hull.slice(0, this.hull.length - 1)
     }
 
     public draw(p: p5): void {
         p.background(230)
         p.translate(p.width / 2, p.height / 2)
 
+        p.fill(255)
         for (let i = 0; i < this.points.length; i++) {
             p.circle(this.points[i].x, this.points[i].y, 10)
         }
@@ -62,11 +72,23 @@ export default class Track {
         for (let i = 0; i < this.hull.length; i++) {
             p.circle(this.hull[i].x, this.hull[i].y, 10)
         }
-        p.fill(255)
+        p.fill(230)
 
         for (let i = 0; i < this.hull.length; i++) {
-            if (i === this.hull.length - 1) p.line(this.hull[i].x, this.hull[i].y, this.hull[0].x, this.hull[0].y)
-            else p.line(this.hull[i].x, this.hull[i].y, this.hull[i + 1].x, this.hull[i + 1].y)
+            const next = (i + 1) % this.hull.length
+
+            p.stroke(255, 0, 0)
+            // p.circle(this.controlPoints[i][0].x, this.controlPoints[i][0].y, 10)
+            p.line(this.controlPoints[i][0].x, this.controlPoints[i][0].y, this.hull[next].x, this.hull[next].y)
+            p.line(this.controlPoints[i][1].x, this.controlPoints[i][1].y, this.hull[i].x, this.hull[i].y)
+            // p.circle(this.controlPoints[i][1].x, this.controlPoints[i][1].y, 10)
+            p.stroke(0)
+            p.curve(
+                this.controlPoints[i][0].x, this.controlPoints[i][0].y,
+                this.hull[i].x, this.hull[i].y,
+                this.hull[next].x, this.hull[next].y,
+                this.controlPoints[i][1].x, this.controlPoints[i][1].y
+            )
         }
     }
 
@@ -103,6 +125,30 @@ export default class Track {
                 curToNext.x * p.cos(theta) - curToNext.y * p.sin(theta),
                 curToNext.x * p.sin(theta) + curToNext.y * p.cos(theta)
             ))
+        }
+    }
+
+    initializeCurve(p: p5): void {
+        this.curve = this.hull.map((_, idx) => idx % 2 === 0)
+        this.controlPoints = []
+        for (let i = 0; i < this.hull.length; i++) {
+            const next = (i + 1) % this.hull.length
+            const dirVec = p5.Vector.sub(this.hull[next], this.hull[i]).normalize().mult(500)
+
+            const rotationAngle = p.PI / 2
+            const cwVec = p.createVector(
+                dirVec.x * p.cos(rotationAngle) - dirVec.y * p.sin(rotationAngle),
+                dirVec.x * p.sin(rotationAngle) + dirVec.y * p.cos(rotationAngle)
+            )
+            const ccVec = p.createVector(
+                dirVec.x * p.cos(-rotationAngle) - dirVec.y * p.sin(-rotationAngle),
+                dirVec.x * p.sin(-rotationAngle) + dirVec.y * p.cos(-rotationAngle)
+            )
+
+            // true if outer, false if inner
+            const curCP = p5.Vector.sub(this.hull[i], this.curve[i] ? cwVec : ccVec)
+            const nextCP = p5.Vector.add(this.hull[next], this.curve[i] ? ccVec : cwVec)
+            this.controlPoints.push([ curCP, nextCP ])
         }
     }
 }
