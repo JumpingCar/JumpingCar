@@ -2,6 +2,8 @@ export default class Matrix {
     // randomly initializes a matrix of the given row and column with random values of range [-1, 1)
     constructor(row, column) {
         this.matrix = Array(row).fill(0).map(_ => Array(column).fill(Math.random() * 2 - 1))
+        this.row = row
+        this.column = column
     }
 
     add(other) {
@@ -12,12 +14,8 @@ export default class Matrix {
         Matrix.multiply(this, other)
     }
 
-    get row() {
-        return this.matrix.length
     }
 
-    get column() {
-        return this.matrix[0].length
     }
 
     static add(mat1, mat2) {
