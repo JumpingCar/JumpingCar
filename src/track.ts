@@ -1,9 +1,19 @@
 import * as p5 from 'p5'
 
+interface Section {
+    x1: number
+    y1: number
+    x2: number
+    y2: number
+    x: number
+    y: number
+}
+
 export default class Track {
     points: p5.Vector[]
     hull: p5.Vector[]
     controlPoints: p5.Vector[][]
+    sections: Section[]
     curve: boolean[]
     maxDistance: number
 
