@@ -110,20 +110,16 @@ export default class Track {
         let nextVertex = this.points[1]
         let currentVertex = leftMost
         this.hull.push(currentVertex)
-        while (true) {
-            let nextIndex: number
-
+        for (;;) {
             for (let index = 0; index < this.points.length; index++) {
-                let checking = this.points[index]
+                const checking = this.points[index]
 
                 const a = p5.Vector.sub(nextVertex, currentVertex)
                 const b = p5.Vector.sub(checking, currentVertex)
                 const cross = a.cross(b)
 
-                if (cross.z < 0) {
+                if (cross.z < 0)
                     nextVertex = checking
-                    nextIndex = index
-                }
             }
 
             if (nextVertex === leftMost)

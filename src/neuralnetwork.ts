@@ -21,7 +21,7 @@ export default class NeuralNetwork {
             this.bias.push(new Matrix(this.layers[i].row, 1))
     }
 
-    feedforward(inputs: number[]) {
+    feedforward(inputs: number[]): Matrix {
         if (inputs.length !== this.layers[0].row)
             throw new Error("Input count does not match input layer nodes!")
 
@@ -39,12 +39,12 @@ export default class NeuralNetwork {
     }
 
     // flattened weights + flattened biases
-    exportGenes() {
-        let weights_flattened = this.weights.reduce((flattened, weight) => [...flattened, ...weight.flatten()], [])
+    exportGenes(): number[] {
+        const weights_flattened = this.weights.reduce((flattened, weight) => [...flattened, ...weight.flatten()], [])
         return this.bias.reduce((flattened, b) => [...flattened, ...b.flatten()], weights_flattened)
     }
 
-    importGenes(genes: number[]) {
+    importGenes(genes: number[]): void {
         let count = 0
 
         for (let i = 0; i < this.weights.length; i++) {
@@ -58,7 +58,7 @@ export default class NeuralNetwork {
         }
     }
 
-    static crossover(nn1:NeuralNetwork, nn2:NeuralNetwork) {
+    static crossover(nn1:NeuralNetwork, nn2:NeuralNetwork): number[][] {
         const parentGene1 : number[] = nn1.exportGenes()
         const parentGene2 : number[] = nn2.exportGenes()
         if (parentGene1.length != parentGene2.length)
@@ -90,7 +90,7 @@ export default class NeuralNetwork {
         child1 = []
         child2 = []
         pivot1 = Math.floor(Math.random() * parentGene1.length)
-        let pivot2 : number = Math.floor(Math.random() * parentGene1.length)
+        const pivot2 : number = Math.floor(Math.random() * parentGene1.length)
 
         for (let i = 0; i < Math.min(pivot1, pivot2); i++) {
             child1.push(parentGene1[i])
@@ -110,7 +110,7 @@ export default class NeuralNetwork {
         //uniform Crossover : 2 new children
         child1 = []
         child2 = []
-        let change : number[] = []
+        const change : number[] = []
         for (let i = 0; i < parentGene1.length; i++) {
             change.push(Math.floor(Math.random()*2)) // 'change' is array of 0 or 1.
         }
@@ -130,12 +130,12 @@ export default class NeuralNetwork {
         return children // total 8 new children.
     }
 
-    static mutation(genesList : number[][]) {
-        let children : number[][] = genesList
+    static mutation(genesList : number[][]): number[][] {
+        const children : number[][] = genesList
         const mut1 : number = Math.floor(Math.random() * genesList.length)
         const mut2 : number = Math.floor(Math.random() * genesList.length)
-        let child1 : number[] = genesList[mut1]
-        let child2 : number[] = genesList[mut2]
+        const child1 : number[] = genesList[mut1]
+        const child2 : number[] = genesList[mut2]
         let pivot1 : number[]
         let pivot2 : number[]
 
@@ -154,10 +154,10 @@ export default class NeuralNetwork {
                 child2[i] = (genesList[mut2][i]*(-1)) // change sign.
             }
         }
-        
+
         return children.concat([child1, child2]) // genesList gets 2 new children.
     }
 
     //crossover와 mutation을 거치면 2명의 부모로 부터 10명의 새로운 자식들이 태어남.
-    //100명의 자식을 만들고 싶으면 2명의 부모 10쌍을 select하면 됨. 
+    //100명의 자식을 만들고 싶으면 2명의 부모 10쌍을 select하면 됨.
 }
