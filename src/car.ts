@@ -3,6 +3,8 @@ import { Ray } from './ray';
 import { Boundary } from './boundary';
 import Matrix from './matrix';
 import NeuralNetwork from './neuralnetwork';
+import { Section } from './track'
+import MathUtils from './utils/MathUtils'
 
 export class Car {
     pos : p5.Vector
@@ -16,8 +18,10 @@ export class Car {
     raySensor: number[]
     fitness: number
     radius: number
+    walls: Boundary[]
+    currentSection: number
 
-    constructor (p:p5, x:number, y:number) {
+    constructor (p: p5, x: number, y: number, walls: Boundary[]) {
         this.pos = p.createVector(x, y);
         this.vel = p.createVector(1, 0);
         this.acc = p.createVector(1, 0);
@@ -28,7 +32,8 @@ export class Car {
         this.raySensor = new Array(3).fill(this.sight)
         this.fitness = 0
         this.radius = 8
-
+        this.walls = walls
+        this.currentSection = 0
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
             new Ray(this.pos, this.angle),
@@ -56,13 +61,16 @@ export class Car {
         const max = Math.max(output.matrix[0][0], output.matrix[1][0])
 
         return [
-            max > 0.9 && max === output.matrix[0][0],
-            max > 0.9 && max === output.matrix[1][0]
+            max > 0.5 && max === output.matrix[0][0],
+            max > 0.5 && max === output.matrix[1][0]
         ]
     }
 
-    update(p: p5, input: number[]): void {
-        const output = this.network.feedforward(input)
+    update(p: p5): void {
+        this.makeray(p)
+        this.look(p)
+
+        const output = this.network.feedforward(this.raySensor)
         const decisions = Car.adjust(output)
 
         if (!this.dead) {
@@ -93,11 +101,11 @@ export class Car {
         }
     }
 
-    look(p: p5, walls: Boundary[]): void {
+    look(p: p5): void {
         for (let i = 0; i < this.rays.length; i++) {
             const ray = this.rays[i]
             let record = this.sight
-            for (const wall of walls) {
+            for (const wall of this.walls) {
                 const pt = ray.cast(p, wall)
                 if (pt) {
                     p.stroke(255, 0, 0)
@@ -133,5 +141,31 @@ export class Car {
             new Ray(this.pos, this.angle),
             new Ray(this.pos, this.angle + p.PI / 4)
         ]
+    }
+
+    setWalls(walls: Boundary[]): void {
+        this.walls = walls
+    }
+
+    updateCurrentSection(p: p5, sections: Section[]): void {
+        const cur = sections[this.currentSection]
+        const next = sections[(this.currentSection + 1) % sections.length]
+        const nextnext = sections[(this.currentSection + 2) % sections.length]
+
+        const tri1 = MathUtils.triangleSize(this.pos, cur.left, cur.right)
+        const tri2 = MathUtils.triangleSize(this.pos, cur.right, next.right)
+        const tri3 = MathUtils.triangleSize(this.pos, next.right, next.left)
+        const tri4 = MathUtils.triangleSize(this.pos, next.left, cur.left)
+        const sum = tri1 + tri2 + tri3 + tri4
+
+        const quadrilateral = MathUtils.triangleSize(cur.left, cur.right, next.right) + MathUtils.triangleSize(next.right, next.left, cur.left)
+
+        if (Math.abs(quadrilateral - sum) >= 1e-2) {
+            this.walls = [
+                new Boundary(p, next.left.x, next.left.y, nextnext.left.x, nextnext.left.y),
+                new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
+            ]
+            this.currentSection  = (this.currentSection + 1) % sections.length
+        }
     }
 }
