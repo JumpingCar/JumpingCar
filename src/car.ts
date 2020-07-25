@@ -74,12 +74,9 @@ export class Car {
 
     static adjust(output: Matrix): boolean[] {
         const max = Math.max(output.matrix[0][0], output.matrix[1][0])
+        const maxIndex = [0, 1, 2].reduce((acc, cur) => output.matrix[cur][0] > output.matrix[acc][0] ? cur : acc, 0)
 
-        return [
-            max > 0.5 && max === output.matrix[0][0],
-            max > 0.5 && max === output.matrix[1][0],
-            output.matrix[2][0] > 0.8
-        ]
+        return [ 0 === maxIndex, 1 === maxIndex, 2 === maxIndex ]
     }
 
     update(p: p5): void {
