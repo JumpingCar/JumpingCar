@@ -96,11 +96,16 @@ export default class Track {
     }
 
     generateNextGen(p: p5): void {
-        const parentPairs: Car[][] = Car.selection(this.cars, 3)
+        const parentPairs: Car[][] = Car.selection(this.cars, this.population / 2 - 1)
+
+        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+
         const children: number[][] = parentPairs.reduce((nextgen, pair) => {
             const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
             return [...nextgen, ...children]
-        }, [] as number[][])
+        }, [] as number[][]).concat([sorted[0].network.exportGenes(), sorted[1].network.exportGenes()])
+
+
         NeuralNetwork.mutation(children)
 
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)

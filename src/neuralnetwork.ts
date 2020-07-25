@@ -64,10 +64,8 @@ export default class NeuralNetwork {
         if (parentGene1.length !== parentGene2.length)
             throw new Error("Wrong Arity")
 
-        let children : number[][] = []
-
-        // Parent : 2 new children
-        children = children.concat([parentGene1, parentGene2])
+        // // Parent : 2 new children
+        // children = children.concat([parentGene1, parentGene2])
 
         // 1 point Crossover : 2 new children
         let child1 : number[] = []
@@ -84,48 +82,48 @@ export default class NeuralNetwork {
             child2.push(parentGene1[i])
         }
 
-        children = children.concat([child1, child2])
+        return [child1, child2]
 
-        // 2 point Crossover : 2 new children
-        child1 = []
-        child2 = []
-        pivot1 = Math.floor(Math.random() * parentGene1.length)
-        const pivot2 : number = Math.floor(Math.random() * parentGene1.length)
+        // // 2 point Crossover : 2 new children
+        // child1 = []
+        // child2 = []
+        // pivot1 = Math.floor(Math.random() * parentGene1.length)
+        // const pivot2 : number = Math.floor(Math.random() * parentGene1.length)
 
-        for (let i = 0; i < Math.min(pivot1, pivot2); i++) {
-            child1.push(parentGene1[i])
-            child2.push(parentGene2[i])
-        }
-        for (let i = Math.min(pivot1, pivot2); i < Math.max(pivot1, pivot2); i++) {
-            child1.push(parentGene2[i])
-            child2.push(parentGene1[i])
-        }
-        for (let i = Math.max(pivot1, pivot2); i < parentGene1.length; i++) {
-            child1.push(parentGene1[i])
-            child2.push(parentGene2[i])
-        }
+        // for (let i = 0; i < Math.min(pivot1, pivot2); i++) {
+        //     child1.push(parentGene1[i])
+        //     child2.push(parentGene2[i])
+        // }
+        // for (let i = Math.min(pivot1, pivot2); i < Math.max(pivot1, pivot2); i++) {
+        //     child1.push(parentGene2[i])
+        //     child2.push(parentGene1[i])
+        // }
+        // for (let i = Math.max(pivot1, pivot2); i < parentGene1.length; i++) {
+        //     child1.push(parentGene1[i])
+        //     child2.push(parentGene2[i])
+        // }
 
-        children = children.concat([child1, child2])
+        // children = children.concat([child1, child2])
 
-        //uniform Crossover : 2 new children
-        child1 = []
-        child2 = []
-        const change : number[] = []
-        for (let i = 0; i < parentGene1.length; i++) {
-            change.push(Math.floor(Math.random()*2)) // 'change' is array of 0 or 1.
-        }
+        // //uniform Crossover : 2 new children
+        // child1 = []
+        // child2 = []
+        // const change : number[] = []
+        // for (let i = 0; i < parentGene1.length; i++) {
+        //     change.push(Math.floor(Math.random()*2)) // 'change' is array of 0 or 1.
+        // }
 
-        for (let i = 0; i < parentGene1.length; i++) {
-            if (change[i] == 0) {
-                child1.push(parentGene1[i])
-                child2.push(parentGene2[i])
-            } else {
-                child1.push(parentGene2[i])
-                child2.push(parentGene1[i])
-            }
-        }
+        // for (let i = 0; i < parentGene1.length; i++) {
+        //     if (change[i] == 0) {
+        //         child1.push(parentGene1[i])
+        //         child2.push(parentGene2[i])
+        //     } else {
+        //         child1.push(parentGene2[i])
+        //         child2.push(parentGene1[i])
+        //     }
+        // }
 
-        return children.concat([child1, child2, parentGene1, parentGene2])
+        // return children.concat([child1, child2, parentGene1, parentGene2])
     }
 
     static mutation(genesList: number[][]): void {
