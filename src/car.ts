@@ -30,7 +30,7 @@ export class Car {
         this.sight = 50
         this.angle = this.vel.angleBetween(p.createVector(1,0))
         this.network = new NeuralNetwork(3, 4, 2)
-        this.raySensor = new Array(3).fill(this.sight)
+        this.raySensor = new Array(3).fill(-this.sight)
         this.fitness = 0
         this.radius = 8
         this.walls = walls
@@ -43,19 +43,19 @@ export class Car {
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
     }
 
-    static selection(cars: Car[], pairs: number): Car[] {
-        const fitnessSum = cars.reduce((acc, cur) => acc + cur.fitness, 0)
+    static selection(cars: Car[], pairs: number): Car[][] {
+        const maxFitness = cars.reduce((acc, cur) => Math.max(acc, cur.fitness), -1)
 
         // car of highest fitness gets 10 quotas
         const fitnessList = cars.reduce((list, car, idx) => {
-            const quota = Math.floor(car.fitness / fitnessSum * 10)
-            return [ ...list, Array(quota).fill(idx)  ]
+            const quota = Math.floor(car.fitness / maxFitness * 10)
+            return [ ...list, ...Array(quota).fill(idx) ]
         }, [])
 
         return Array(pairs).fill(0).reduce((acc, _) => {
             const mom = fitnessList[Math.floor(Math.random() * fitnessList.length)]
             const dad = fitnessList[Math.floor(Math.random() * fitnessList.length)]
-            return [ ...acc, [mom, dad] ]
+            return [ ...acc, [cars[mom], cars[dad]] ]
         }, [])
     }
 
@@ -77,13 +77,13 @@ export class Car {
 
         if (!this.dead) {
             let theta : number;
-            theta = -p.PI / 2 //turn left
+            theta = -p.PI / 8 //turn left
             const left : p5.Vector = p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
 
-            theta = p.PI / 2 //turn right
+            theta = p.PI / 8 //turn right
             const right : p5.Vector =  p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
@@ -96,7 +96,7 @@ export class Car {
 
             this.acc.setMag(0.12);
             this.vel.add(this.acc);
-            this.vel.limit(10);
+            this.vel.limit(20);
 
             this.pos.add(this.vel);
         }
@@ -113,7 +113,7 @@ export class Car {
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     p.stroke(255)
                     const d = p5.Vector.dist(this.pos, pt)
-                    this.raySensor[i] = d
+                    this.raySensor[i] = 50 - d
                     if(d < record && d < this.sight) {
                         record = d;
                     }
@@ -121,7 +121,8 @@ export class Car {
             }
             if (record < this.radius) {
                 this.dead = true
-                this.fitness = this.currentSection
+                this.fitness = this.currentSection + 1
+                console.log('Current Section: ', this.currentSection)
             }
         }
     }
@@ -169,5 +170,27 @@ export class Car {
             ]
             this.currentSection  = (this.currentSection + 1) % sections.length
         }
+    }
+
+    applyGenes(genes: number[]): void {
+        this.network.importGenes(genes)
+    }
+
+    reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[]): void {
+        this.pos = startingPoint.copy()
+        this.vel = direction.copy()
+        this.acc = direction.copy()
+        this.currentSection = 0
+        this.walls = walls
+        this.network.importGenes(genes)
+        this.angle = this.vel.angleBetween(p.createVector(1,0))
+        this.rays = [
+            new Ray(this.pos, this.angle - p.PI / 4),
+            new Ray(this.pos, this.angle),
+            new Ray(this.pos, this.angle + p.PI / 4)
+        ]
+        this.dead = false
+        this.fitness = 0
+        this.raySensor = new Array(3).fill(this.sight)
     }
 }

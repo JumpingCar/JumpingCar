@@ -1,6 +1,7 @@
 import * as p5 from 'p5'
 import { Car } from './car'
 import { Boundary } from './boundary'
+import NeuralNetwork from './neuralnetwork'
 
 export interface Section {
     left: p5.Vector
@@ -18,6 +19,7 @@ export default class Track {
     cars: Car[]
     population: number
     deadCount: number
+    furthest: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -66,7 +68,7 @@ export default class Track {
 
         if (this.deadCount === this.population) {
             this.deadCount = 0
-            this.generateNextGen()
+            this.generateNextGen(p)
             return
         }
 
@@ -93,8 +95,23 @@ export default class Track {
         p.strokeWeight(1)
     }
 
-    generateNextGen(): void {
-       return
+    generateNextGen(p: p5): void {
+        const parentPairs: Car[][] = Car.selection(this.cars, 3)
+        const children: number[][] = parentPairs.reduce((nextgen, pair) => {
+            const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
+            return [...nextgen, ...children]
+        }, [] as number[][])
+        NeuralNetwork.mutation(children)
+
+        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+        const initialWalls = [
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+            new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+        ]
+
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
     }
 
     initializeConvexHull(): void {
