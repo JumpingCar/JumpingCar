@@ -14,6 +14,7 @@ export class Car {
     angle : number
     network: NeuralNetwork
     raySensor: number[]
+    fitness: number
 
     constructor (p:p5, x:number, y:number) {
         this.pos = p.createVector(x, y);
@@ -24,6 +25,7 @@ export class Car {
         this.angle = this.vel.angleBetween(p.createVector(1,0))
         this.network = new NeuralNetwork(3, 4, 2)
         this.raySensor = new Array(3).fill(this.sight)
+        this.fitness = 0
 
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
@@ -69,6 +71,7 @@ export class Car {
             this.vel.limit(10);
 
             this.pos.add(this.vel);
+            this.fitness += this.vel.mag()
         }
     }
 
