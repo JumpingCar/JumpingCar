@@ -85,26 +85,27 @@ export class Car {
 
         const output = this.network.feedforward(this.raySensor)
         const decisions = Car.adjust(output)
+        let max = Math.max(output.matrix[0][0], output.matrix[1][0])
 
         if (!this.dead) {
 
-            if(this.isJumping) {
-                if(this.jumpTime < 30) {
-                    this.radius += 0.2 //중력가속도
-                    this.jumpTime += 1
-                }
+            // if(this.isJumping) {
+            //     if(this.jumpTime < 30) {
+            //         this.radius += 0.2 //중력가속도
+            //         this.jumpTime += 1
+            //     }
 
-                if(this.jumpTime >= 30) {
-                    this.radius -= 0.2
-                    this.jumpTime += 1
-                }
+            //     if(this.jumpTime >= 30) {
+            //         this.radius -= 0.2
+            //         this.jumpTime += 1
+            //     }
 
-                if(this.jumpTime > 60) {
-                    this.isJumping = false
-                    this.jumpTime = 0
-                }
+            //     if(this.jumpTime > 60) {
+            //         this.isJumping = false
+            //         this.jumpTime = 0
+            //     }
 
-            }
+            // }
             let theta : number;
             theta = -p.PI / 8 //turn left
             const left : p5.Vector = p.createVector(
@@ -118,16 +119,27 @@ export class Car {
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
 
-            if (decisions[0])
+            if (decisions[0]) {
                 this.acc = left
-            if (decisions[1])
+                this.acc.setMag(max*0.001);
+                this.acc.limit(0.13);
+            }
+            else if (decisions[1]) {
                 this.acc = right
-            if (decisions[2] && this.jumpTime == 0)
-                this.isJumping = true
-            this.acc.setMag(0.12);
-            this.vel.add(this.acc);
-            this.vel.limit(20);
+                this.acc.setMag(max*0.001);
+                this.acc.limit(0.13);
+            }
+            else {
+                max = 0
+                this.acc.setMag(0.13);
+            }
+            
+            // if (decisions[2] && this.jumpTime == 0)
+            //     this.isJumping = true 
+            //
 
+            this.vel.add(this.acc);
+            this.vel.limit(10);
             this.pos.add(this.vel);
         }
     }
