@@ -21,10 +21,10 @@ export class Car {
     walls: Boundary[]
     currentSection: number
 
-    constructor (p: p5, x: number, y: number, walls: Boundary[]) {
-        this.pos = p.createVector(x, y);
-        this.vel = p.createVector(1, 0);
-        this.acc = p.createVector(1, 0);
+    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
+        this.pos = startingPoint.copy()
+        this.vel = direction.copy()
+        this.acc = direction.copy()
         this.dead = false
         this.sight = 50
         this.angle = this.vel.angleBetween(p.createVector(1,0))
@@ -97,7 +97,6 @@ export class Car {
             this.vel.limit(10);
 
             this.pos.add(this.vel);
-            this.fitness += this.vel.mag()
         }
     }
 
@@ -119,6 +118,7 @@ export class Car {
             }
             if (record < this.radius) {
                 this.dead = true
+                this.fitness = this.currentSection
                 console.log(this.fitness)
             }
         }

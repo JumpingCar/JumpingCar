@@ -53,8 +53,9 @@ export default class Track {
             new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
         ]
 
+        const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint.x, startingPoint.y, initialWalls))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls))
         }
     }
 
