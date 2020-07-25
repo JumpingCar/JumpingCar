@@ -48,6 +48,7 @@ export default class Track {
         this.initializeCurve(p)
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
 
+        this.furthest = 0
         this.population = 30
         this.deadCount = 0
         this.cars = []
@@ -64,19 +65,25 @@ export default class Track {
     }
 
     public draw(p: p5): void {
-        p.translate(p.width / 2 - this.cars[0].pos.x, p.height / 2 - this.cars[0].pos.y)
+        p.translate(p.width / 2 - this.cars[this.furthest].pos.x, p.height / 2 - this.cars[this.furthest].pos.y)
 
         if (this.deadCount === this.population) {
             this.deadCount = 0
             this.generateNextGen(p)
+            this.furthest = 0
             return
         }
 
         for (let i = 0; i < this.cars.length; i++) {
             if (!this.cars[i].dead) {
                 this.cars[i].update(p)
+
+                if (this.cars[this.furthest].currentSection < this.cars[i].currentSection) 
+                    this.furthest = i
+ 
                 if (this.cars[i].dead)
                     this.deadCount += 1
+
                 this.cars[i].updateCurrentSection(p, this.sections)
             }
             this.cars[i].show(p)
