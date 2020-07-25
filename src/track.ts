@@ -93,14 +93,13 @@ export default class Track {
 
         const quadrilateral = MathUtils.triangleSize(cur.left, cur.right, next.right) + MathUtils.triangleSize(next.right, next.left, cur.left)
 
-        if (Math.abs(quadrilateral - sum) < 1e-2) {
-            console.log('inside')
-        } else {
-            console.log('outside')
+        if (Math.abs(quadrilateral - sum) >= 1e-2) {
+            console.log(`move to ${(this.currentSection + 1) % this.sections.length}`)
             this.currentWalls = [
                 new Boundary(p, next.left.x, next.left.y, nextnext.left.x, nextnext.left.y),
                 new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
             ]
+            this.currentSection  = (this.currentSection + 1) % this.sections.length
         }
     }
 
