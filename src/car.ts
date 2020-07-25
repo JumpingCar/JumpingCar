@@ -122,7 +122,6 @@ export class Car {
             if (record < this.radius) {
                 this.dead = true
                 this.fitness = this.currentSection
-                console.log(this.fitness)
             }
         }
     }

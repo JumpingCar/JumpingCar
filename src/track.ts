@@ -17,6 +17,7 @@ export default class Track {
     maxDistance: number
     cars: Car[]
     population: number
+    deadCount: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -45,7 +46,8 @@ export default class Track {
         this.initializeCurve(p)
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
 
-        this.population = 10
+        this.population = 30
+        this.deadCount = 0
         this.cars = []
         const initialWalls = [
             new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
@@ -62,10 +64,20 @@ export default class Track {
     public draw(p: p5): void {
         p.translate(p.width / 2 - this.cars[0].pos.x, p.height / 2 - this.cars[0].pos.y)
 
-        for (const car of this.cars) {
-            car.update(p)
-            car.show(p)
-            car.updateCurrentSection(p, this.sections)
+        if (this.deadCount === this.population) {
+            this.deadCount = 0
+            this.generateNextGen()
+            return
+        }
+
+        for (let i = 0; i < this.cars.length; i++) {
+            if (!this.cars[i].dead) {
+                this.cars[i].update(p)
+                if (this.cars[i].dead)
+                    this.deadCount += 1
+                this.cars[i].updateCurrentSection(p, this.sections)
+            }
+            this.cars[i].show(p)
         }
 
         // draw track
@@ -77,8 +89,12 @@ export default class Track {
             p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
             p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
         }
-        p.stroke(0)
+        p.stroke(255)
         p.strokeWeight(1)
+    }
+
+    generateNextGen(): void {
+       return
     }
 
     initializeConvexHull(): void {
