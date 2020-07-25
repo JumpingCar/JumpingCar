@@ -25,6 +25,7 @@ export class Car {
     jumpTime : number
     jumpRays : Ray[]
     jumpDistance : number
+    distance: number
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
@@ -53,6 +54,7 @@ export class Car {
             new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
         ]
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
+        this.distance = 0
     }
 
     static selection(cars: Car[], pairs: number): Car[][] {
@@ -141,6 +143,7 @@ export class Car {
             this.vel.add(this.acc);
             this.vel.limit(10);
             this.pos.add(this.vel);
+            this.distance += this.vel.mag()
         }
     }
 
@@ -234,5 +237,6 @@ export class Car {
         this.dead = false
         this.fitness = 0
         this.raySensor = new Array(3).fill(this.sight)
+        this.distance = 0
     }
 }
