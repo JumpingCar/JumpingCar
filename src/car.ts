@@ -8,11 +8,12 @@ export class Car {
     pos : p5.Vector
     vel : p5.Vector
     acc : p5.Vector
-    dead : Boolean
+    dead : boolean
     sight : number
-    rays : Ray[] //무슨타입?
+    rays : Ray[]
     angle : number
     network: NeuralNetwork
+    raySensor: number[]
 
     constructor (p:p5, x:number, y:number) {
         this.pos = p.createVector(x, y);
@@ -22,6 +23,7 @@ export class Car {
         this.sight = 50
         this.angle = this.vel.angleBetween(p.createVector(1,0))
         this.network = new NeuralNetwork(3, 4, 2)
+        this.raySensor = new Array(3).fill(this.sight)
 
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
@@ -30,7 +32,7 @@ export class Car {
         ]
     }
 
-    static adjust(output: Matrix) {
+    static adjust(output: Matrix) : boolean[] {
         const max = Math.max(output.matrix[0][0], output.matrix[1][0])
 
         return [
@@ -39,20 +41,20 @@ export class Car {
         ]
     }
 
-    update(p: p5, input: number[]) {
-        const output = this.network.feedforward(input)
+    update(p: p5) : void {
+        const output = this.network.feedforward(this.raySensor)
         const decisions = Car.adjust(output)
 
         if (!this.dead) {
             let theta : number;
             theta = -p.PI / 2 //turn left
-            let left : p5.Vector = p.createVector(
+            const left : p5.Vector = p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
 
             theta = p.PI / 2 //turn right
-            let right : p5.Vector =  p.createVector(
+            const right : p5.Vector =  p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
@@ -70,16 +72,18 @@ export class Car {
         }
     }
 
-    look(p:p5, walls : Boundary[]){
+    look(p:p5, walls : Boundary[]) : void{
+        this.raySensor = new Array(3).fill(this.sight) //0 ~ 50
         for (let i = 0; i < this.rays.length; i++) {
             const ray = this.rays[i]
             let record = this.sight
-            for (let wall of walls) {
+            for (const wall of walls) {
                 const pt = ray.cast(p, wall)
-                if (pt) { // pt의 의미?
+                if (pt) {
                     p.stroke(255, 0, 0)
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     const d = p5.Vector.dist(this.pos, pt)
+                    this.raySensor[i] = d
                     if(d < record && d < this.sight) {
                         record = d;
                     }
@@ -91,17 +95,17 @@ export class Car {
         }
     }
 
-    show (p:p5) {
+    show (p:p5) : void {
         // p.stroke(255);
         p.fill(204, 102, 0)
         //p.strokeWeight(2);
         p.ellipse(this.pos.x, this.pos.y, 16)
-        for (let ray of this.rays) {
+        for (const ray of this.rays) {
             ray.show(p);
         }
     }
 
-    makeray(p:p5){
+    makeray(p:p5) : void{
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
