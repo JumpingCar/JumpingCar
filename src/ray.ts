@@ -14,16 +14,16 @@ export class Ray {
 
     constructor(pos : Vector, angle : number) {
         this.pos = pos;
-        this.dir = p5.Vector.fromAngle(angle, 200);
+        this.dir = p5.Vector.fromAngle(angle, 50);
     }
 
-    lookAt(p : p5, x : number, y : number) {
+    lookAt(p : p5, x : number, y : number) : void{
         this.dir.x = x - this.pos.x;
         this.dir.y = y - this.pos.y;
         this.dir.normalize();
     }
 
-    show(p:p5) {
+    show(p:p5) :void {
         p.stroke(255);
         p.push();
         p.translate(this.pos.x, this.pos.y);
@@ -31,7 +31,7 @@ export class Ray {
         p.pop();
     }
 
-    cast(p:p5, wall:Boundary) {
+    cast(p:p5, wall:Boundary) : Vector {
         const x1 = wall.a.x;
         const y1 = wall.a.y;
         const x2 = wall.b.x;

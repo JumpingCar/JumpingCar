@@ -15,7 +15,7 @@ export class Boundary {
         this.b = p.createVector(x2, y2);
     }
 
-    show(p:p5) {
+    show(p:p5) : void {
         p.stroke(255);
         p.strokeWeight(3);
         p.line(this.a.x, this.a.y, this.b.x, this.b.y);

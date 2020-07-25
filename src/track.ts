@@ -60,7 +60,7 @@ export default class Track {
         p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.sections[0].mid.y)
 
         // draw car
-        this.car.update(p, Array(3).fill(Math.random()))
+        this.car.update(p)
         this.car.show(p)
         this.car.makeray(p)
         this.car.look(p, this.currentWalls)
