@@ -57,7 +57,7 @@ export default class Track {
     }
 
     public draw(p: p5): void {
-        p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.sections[0].mid.y)
+        p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.car.pos.y)
 
         // draw car
         this.car.update(p)
@@ -93,14 +93,12 @@ export default class Track {
 
         const quadrilateral = MathUtils.triangleSize(cur.left, cur.right, next.right) + MathUtils.triangleSize(next.right, next.left, cur.left)
 
-        if (Math.abs(quadrilateral - sum) < 1e-2) {
-            console.log('inside')
-        } else {
-            console.log('outside')
+        if (Math.abs(quadrilateral - sum) >= 1e-2) {
             this.currentWalls = [
                 new Boundary(p, next.left.x, next.left.y, nextnext.left.x, nextnext.left.y),
                 new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
             ]
+            this.currentSection  = (this.currentSection + 1) % this.sections.length
         }
     }
 
@@ -110,20 +108,16 @@ export default class Track {
         let nextVertex = this.points[1]
         let currentVertex = leftMost
         this.hull.push(currentVertex)
-        while (true) {
-            let nextIndex: number
-
+        for (;;) {
             for (let index = 0; index < this.points.length; index++) {
-                let checking = this.points[index]
+                const checking = this.points[index]
 
                 const a = p5.Vector.sub(nextVertex, currentVertex)
                 const b = p5.Vector.sub(checking, currentVertex)
                 const cross = a.cross(b)
 
-                if (cross.z < 0) {
+                if (cross.z < 0)
                     nextVertex = checking
-                    nextIndex = index
-                }
             }
 
             if (nextVertex === leftMost)

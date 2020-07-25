@@ -10,21 +10,21 @@ export default class Matrix {
         this.column = column
     }
 
-    add(other: Matrix) {
+    add(other: Matrix): void {
         Matrix.add(this, other)
     }
 
-    dot(other: Matrix) {
+    dot(other: Matrix): void {
         Matrix.dot(this, other)
     }
 
     // flattens the matrix into a 1d array
-    flatten() {
+    flatten(): number[] {
         return this.matrix.reduce((flattened, row) => [...flattened, ...row], [])
     }
 
     // applies values from a flat array
-    construct(flatArray: number[]) {
+    construct(flatArray: number[]): void {
         if (flatArray.length !== this.row * this.column)
             throw new Error("Flat array length invalid!")
 
@@ -33,7 +33,7 @@ export default class Matrix {
                 this.matrix[i][j] = flatArray[this.column * i + j]
     }
 
-    static add(mat1: Matrix, mat2: Matrix) {
+    static add(mat1: Matrix, mat2: Matrix): Matrix {
         if (!(mat1.row === mat2.row && mat1.column === mat2.column))
             throw new Error("Sizes of matrices are different!")
 
@@ -48,7 +48,7 @@ export default class Matrix {
         return newMatrix
     }
 
-    static dot(mat1: Matrix, mat2: Matrix) {
+    static dot(mat1: Matrix, mat2: Matrix): Matrix {
         if (!(mat1 instanceof Matrix && mat2 instanceof Matrix))
             throw new Error("Arguments must be matrices!")
 
@@ -64,7 +64,7 @@ export default class Matrix {
         return newMatrix
     }
 
-    static from(array: number[][]) {
+    static from(array: number[][]): Matrix {
         const matrix = new Matrix(array.length, array[0].length)
 
         for (let i = 0; i < matrix.row; i++)
@@ -74,7 +74,7 @@ export default class Matrix {
         return matrix
     }
 
-    static zero(row: number, column: number) {
+    static zero(row: number, column: number): Matrix {
         const matrix = new Matrix(row, column)
 
         for (let i = 0; i < row; i++)
@@ -84,7 +84,7 @@ export default class Matrix {
         return matrix
     }
 
-    static apply(mat: Matrix, func: (x: number) => number) {
+    static apply(mat: Matrix, func: (x: number) => number): Matrix {
         const matrix = new Matrix(mat.row, mat.column)
 
         for (let i = 0; i < matrix.row; i++)
@@ -94,11 +94,11 @@ export default class Matrix {
         return matrix
     }
 
-    static sigmoid(mat: Matrix) {
+    static sigmoid(mat: Matrix): Matrix {
         return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x))))
     }
 
-    toString() {
+    toString(): string {
         return '[\n  ' + this.matrix.map(row => row.map(e => e.toString().padStart(3, ' ')).join(' ')).join('\n  ') + '\n]'
     }
 }

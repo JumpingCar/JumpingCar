@@ -14,6 +14,8 @@ export class Car {
     angle : number
     network: NeuralNetwork
     raySensor: number[]
+    fitness: number
+    radius: number
 
     constructor (p:p5, x:number, y:number) {
         this.pos = p.createVector(x, y);
@@ -24,6 +26,8 @@ export class Car {
         this.angle = this.vel.angleBetween(p.createVector(1,0))
         this.network = new NeuralNetwork(3, 4, 2)
         this.raySensor = new Array(3).fill(this.sight)
+        this.fitness = 0
+        this.radius = 8
 
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
@@ -32,7 +36,7 @@ export class Car {
         ]
     }
 
-    static adjust(output: Matrix) : boolean[] {
+    static adjust(output: Matrix): boolean[] {
         const max = Math.max(output.matrix[0][0], output.matrix[1][0])
 
         return [
@@ -41,8 +45,8 @@ export class Car {
         ]
     }
 
-    update(p: p5) : void {
-        const output = this.network.feedforward(this.raySensor)
+    update(p: p5, input: number[]): void {
+        const output = this.network.feedforward(input)
         const decisions = Car.adjust(output)
 
         if (!this.dead) {
@@ -69,11 +73,11 @@ export class Car {
             this.vel.limit(10);
 
             this.pos.add(this.vel);
+            this.fitness += this.vel.mag()
         }
     }
 
-    look(p:p5, walls : Boundary[]) : void{
-        this.raySensor = new Array(3).fill(this.sight) //0 ~ 50
+    look(p: p5, walls: Boundary[]): void {
         for (let i = 0; i < this.rays.length; i++) {
             const ray = this.rays[i]
             let record = this.sight
@@ -89,23 +93,24 @@ export class Car {
                     }
                 }
             }
-            if (record < 5) {
+            if (record < this.radius) {
                 this.dead = true
+                console.log(this.fitness)
             }
         }
     }
 
-    show (p:p5) : void {
+    show(p: p5): void {
         // p.stroke(255);
         p.fill(204, 102, 0)
         //p.strokeWeight(2);
-        p.ellipse(this.pos.x, this.pos.y, 16)
+        p.ellipse(this.pos.x, this.pos.y, this.radius * 2)
         for (const ray of this.rays) {
             ray.show(p);
         }
     }
 
-    makeray(p:p5) : void{
+    makeray(p: p5): void {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
