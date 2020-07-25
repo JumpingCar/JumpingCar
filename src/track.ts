@@ -1,6 +1,7 @@
 import * as p5 from 'p5'
 import { Car } from './car'
 import MathUtils from './utils/MathUtils'
+import { Boundary } from './boundary'
 
 interface Section {
     left: p5.Vector
@@ -17,6 +18,7 @@ export default class Track {
     maxDistance: number
     car: Car
     currentSection: number
+    currentWalls: Boundary[]
 
     public setup(p: p5): void {
         p.background(230)
@@ -43,7 +45,14 @@ export default class Track {
         }
 
         this.initializeCurve(p)
-        this.car = new Car(p, this.sections[0].mid.x, this.sections[0].mid.y)
+        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+
+        this.car = new Car(p, startingPoint.x, startingPoint.y)
+        this.currentWalls = [
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+            new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+        ]
         this.currentSection = 0
     }
 
@@ -54,9 +63,9 @@ export default class Track {
         this.car.update(p, Array(3).fill(Math.random()))
         this.car.show(p)
         this.car.makeray(p)
-
+        this.car.look(p, this.currentWalls)
         // update current section
-        this.updateCurrentSection()
+        this.updateCurrentSection(p)
 
         // draw track
         p.strokeWeight(3)
@@ -71,9 +80,10 @@ export default class Track {
         p.strokeWeight(1)
     }
 
-    updateCurrentSection(): void {
+    updateCurrentSection(p: p5): void {
         const cur = this.sections[this.currentSection]
         const next = this.sections[(this.currentSection + 1) % this.sections.length]
+        const nextnext = this.sections[(this.currentSection + 2) % this.sections.length]
 
         const tri1 = MathUtils.triangleSize(this.car.pos, cur.left, cur.right)
         const tri2 = MathUtils.triangleSize(this.car.pos, cur.right, next.right)
@@ -87,6 +97,10 @@ export default class Track {
             console.log('inside')
         } else {
             console.log('outside')
+            this.currentWalls = [
+                new Boundary(p, next.left.x, next.left.y, nextnext.left.x, nextnext.left.y),
+                new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
+            ]
         }
     }
 
