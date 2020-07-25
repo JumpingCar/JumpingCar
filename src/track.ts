@@ -106,13 +106,10 @@ export default class Track {
             currentVertex = nextVertex
             nextVertex = leftMost
         }
-
-        if (this.hull.length % 2 === 1)
-            this.hull = this.hull.slice(0, this.hull.length - 1)
     }
 
     pushApart(p: p5): void {
-        const dist = 200
+        const dist = 100
         for (let i = 0; i < this.hull.length; i++)
         for (let j = i + 1; j < this.hull.length; j++)
             if (this.hull[i].dist(this.hull[j]) < dist) {
