@@ -1,4 +1,6 @@
 import * as p5 from 'p5'
+import { Car } from './car'
+import MathUtils from './utils/MathUtils'
 
 interface Section {
     left: p5.Vector
@@ -13,6 +15,8 @@ export default class Track {
     sections: Section[]
     curve: boolean[]
     maxDistance: number
+    car: Car
+    currentSection: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -39,20 +43,51 @@ export default class Track {
         }
 
         this.initializeCurve(p)
+        this.car = new Car(p, this.sections[0].mid.x, this.sections[0].mid.y)
+        this.currentSection = 0
     }
 
     public draw(p: p5): void {
-        p.background(230)
-        p.translate(p.width / 2 - this.sections[0].x, p.height / 2 - this.sections[0].y)
+        p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.sections[0].mid.y)
 
-        p.stroke(0, 0, 255)
+        // draw car
+        this.car.update(p, Array(3).fill(Math.random()))
+        this.car.show(p)
+        this.car.makeray(p)
+
+        // update current section
+        this.updateCurrentSection()
+
+        // draw track
+        p.strokeWeight(3)
+        p.stroke(107, 164, 255)
         for (let i = 0; i < this.sections.length; i++) {
             const next = (i + 1) % this.sections.length
-            p.line(this.sections[i].x1, this.sections[i].y1, this.sections[i].x2, this.sections[i].y2)
-            p.line(this.sections[i].x1, this.sections[i].y1, this.sections[next].x1, this.sections[next].y1)
-            p.line(this.sections[i].x2, this.sections[i].y2, this.sections[next].x2, this.sections[next].y2)
+            p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[i].right.x, this.sections[i].right.y)
+            p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
+            p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
         }
         p.stroke(0)
+        p.strokeWeight(1)
+    }
+
+    updateCurrentSection(): void {
+        const cur = this.sections[this.currentSection]
+        const next = this.sections[(this.currentSection + 1) % this.sections.length]
+
+        const tri1 = MathUtils.triangleSize(this.car.pos, cur.left, cur.right)
+        const tri2 = MathUtils.triangleSize(this.car.pos, cur.right, next.right)
+        const tri3 = MathUtils.triangleSize(this.car.pos, next.right, next.left)
+        const tri4 = MathUtils.triangleSize(this.car.pos, next.left, cur.left)
+        const sum = tri1 + tri2 + tri3 + tri4
+
+        const quadrilateral = MathUtils.triangleSize(cur.left, cur.right, next.right) + MathUtils.triangleSize(next.right, next.left, cur.left)
+
+        if (Math.abs(quadrilateral - sum) < 1e-2) {
+            console.log('inside')
+        } else {
+            console.log('outside')
+        }
     }
 
     initializeConvexHull(): void {
