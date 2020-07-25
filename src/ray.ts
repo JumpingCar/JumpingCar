@@ -12,9 +12,9 @@ export class Ray {
     angle : number
     dir : Vector
 
-    constructor(pos : Vector, angle : number) {
+    constructor(pos : Vector, angle : number, length : number) {
         this.pos = pos;
-        this.dir = p5.Vector.fromAngle(angle, 50);
+        this.dir = p5.Vector.fromAngle(angle, length);
     }
 
     lookAt(p : p5, x : number, y : number) : void{

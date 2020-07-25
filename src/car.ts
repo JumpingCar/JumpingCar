@@ -21,24 +21,36 @@ export class Car {
     walls: Boundary[]
     currentSection: number
     color: [number, number, number]
+    isJumping : boolean
+    jumpTime : number
+    jumpRays : Ray[]
+    jumpDistance : number
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.dead = false
-        this.sight = 50
+        this.sight = 60
         this.angle = this.vel.angleBetween(p.createVector(1,0))
-        this.network = new NeuralNetwork(3, 4, 2)
-        this.raySensor = new Array(3).fill(-this.sight)
+        this.network = new NeuralNetwork(3, 3, 3)
+        this.raySensor = new Array(3).fill(this.sight)
         this.fitness = 0
         this.radius = 8
         this.walls = walls
         this.currentSection = 0
+        this.jumpDistance = 60
+        this.isJumping = false
+        this.jumpTime = 0;
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4),
-            new Ray(this.pos, this.angle),
-            new Ray(this.pos, this.angle + p.PI / 4)
+            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
+            new Ray(this.pos, this.angle, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
+        ]
+        this.jumpRays = [
+            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
+            new Ray(this.pos, this.angle, this.jumpDistance),
+            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
         ]
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
     }
@@ -52,6 +64,7 @@ export class Car {
             return [ ...list, ...Array(quota).fill(idx) ]
         }, [])
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return Array(pairs).fill(0).reduce((acc, _) => {
             const mom = fitnessList[Math.floor(Math.random() * fitnessList.length)]
             const dad = fitnessList[Math.floor(Math.random() * fitnessList.length)]
@@ -64,7 +77,8 @@ export class Car {
 
         return [
             max > 0.5 && max === output.matrix[0][0],
-            max > 0.5 && max === output.matrix[1][0]
+            max > 0.5 && max === output.matrix[1][0],
+            output.matrix[2][0] > 0.8
         ]
     }
 
@@ -76,6 +90,24 @@ export class Car {
         const decisions = Car.adjust(output)
 
         if (!this.dead) {
+
+            if(this.isJumping) {
+                if(this.jumpTime < 30) {
+                    this.radius += 0.2 //중력가속도
+                    this.jumpTime += 1
+                }
+
+                if(this.jumpTime >= 30) {
+                    this.radius -= 0.2
+                    this.jumpTime += 1
+                }
+
+                if(this.jumpTime > 60) {
+                    this.isJumping = false
+                    this.jumpTime = 0
+                }
+
+            }
             let theta : number;
             theta = -p.PI / 8 //turn left
             const left : p5.Vector = p.createVector(
@@ -93,7 +125,8 @@ export class Car {
                 this.acc = left
             if (decisions[1])
                 this.acc = right
-
+            if (decisions[2] && this.jumpTime == 0)
+                this.isJumping = true
             this.acc.setMag(0.12);
             this.vel.add(this.acc);
             this.vel.limit(20);
@@ -140,9 +173,9 @@ export class Car {
     makeray(p: p5): void {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4),
-            new Ray(this.pos, this.angle),
-            new Ray(this.pos, this.angle + p.PI / 4)
+            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
+            new Ray(this.pos, this.angle, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
         ]
     }
 
@@ -185,9 +218,9 @@ export class Car {
         this.network.importGenes(genes)
         this.angle = this.vel.angleBetween(p.createVector(1,0))
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4),
-            new Ray(this.pos, this.angle),
-            new Ray(this.pos, this.angle + p.PI / 4)
+            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
+            new Ray(this.pos, this.angle, this.jumpDistance),
+            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
         ]
         this.dead = false
         this.fitness = 0
