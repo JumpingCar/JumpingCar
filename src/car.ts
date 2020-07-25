@@ -20,6 +20,8 @@ export class Car {
     radius: number
     walls: Boundary[]
     currentSection: number
+    jumpRays : Ray[]
+    jumpDistance : number
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
@@ -34,10 +36,18 @@ export class Car {
         this.radius = 8
         this.walls = walls
         this.currentSection = 0
+        this.jumpDistance = 60
+
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4),
-            new Ray(this.pos, this.angle),
-            new Ray(this.pos, this.angle + p.PI / 4)
+            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
+            new Ray(this.pos, this.angle, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
+        ]
+
+        this.jumpRays = [
+            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
+            new Ray(this.pos, this.angle, this.jumpDistance),
+            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
         ]
     }
 
@@ -137,10 +147,16 @@ export class Car {
     makeray(p: p5): void {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4),
-            new Ray(this.pos, this.angle),
-            new Ray(this.pos, this.angle + p.PI / 4)
+            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
+            new Ray(this.pos, this.angle, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
         ]
+        this.jumpRays = [
+            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
+            new Ray(this.pos, this.angle, this.jumpDistance),
+            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
+        ]
+
     }
 
     setWalls(walls: Boundary[]): void {
