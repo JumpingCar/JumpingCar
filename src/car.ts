@@ -15,6 +15,7 @@ export class Car {
     network: NeuralNetwork
     raySensor: number[]
     fitness: number
+    radius: number
 
     constructor (p:p5, x:number, y:number) {
         this.pos = p.createVector(x, y);
@@ -26,6 +27,7 @@ export class Car {
         this.network = new NeuralNetwork(3, 4, 2)
         this.raySensor = new Array(3).fill(this.sight)
         this.fitness = 0
+        this.radius = 8
 
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
@@ -91,8 +93,9 @@ export class Car {
                     }
                 }
             }
-            if (record < 5) {
+            if (record < this.radius) {
                 this.dead = true
+                console.log(this.fitness)
             }
         }
     }
@@ -101,7 +104,7 @@ export class Car {
         // p.stroke(255);
         p.fill(204, 102, 0)
         //p.strokeWeight(2);
-        p.ellipse(this.pos.x, this.pos.y, 16)
+        p.ellipse(this.pos.x, this.pos.y, this.radius * 2)
         for (const ray of this.rays) {
             ray.show(p);
         }
