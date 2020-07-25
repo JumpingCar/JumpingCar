@@ -2,6 +2,7 @@ import * as p5 from 'p5';
 import { Ray } from './ray';
 import { Boundary } from './boundary';
 import Matrix from './matrix';
+import NeuralNetwork from './neuralnetwork';
 
 export class Car {
     pos : p5.Vector
@@ -11,6 +12,7 @@ export class Car {
     sight : number
     rays : Ray[] //무슨타입?
     angle : number
+    network: NeuralNetwork
 
     constructor (p:p5, x:number, y:number) {
         this.pos = p.createVector(x, y);
@@ -19,6 +21,8 @@ export class Car {
         this.dead = false
         this.sight = 50
         this.angle = this.vel.angleBetween(p.createVector(1,0))
+        this.network = new NeuralNetwork(3, 4, 2)
+
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 4),
             new Ray(this.pos, this.angle),
@@ -35,7 +39,8 @@ export class Car {
         ]
     }
 
-    update(p: p5, output: Matrix) {
+    update(p: p5, input: number[]) {
+        const output = this.network.feedforward(input)
         const decisions = Car.adjust(output)
 
         if (!this.dead) {
@@ -93,7 +98,7 @@ export class Car {
         p.ellipse(this.pos.x, this.pos.y, 16)
         for (let ray of this.rays) {
             ray.show(p);
-          }
+        }
     }
 
     makeray(p:p5){
