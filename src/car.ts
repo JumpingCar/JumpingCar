@@ -36,6 +36,22 @@ export class Car {
         ]
     }
 
+    static selection(cars: Car[], pairs: number): Car[] {
+        const fitnessSum = cars.reduce((acc, cur) => acc + cur.fitness, 0)
+
+        // car of highest fitness gets 10 quotas
+        const fitnessList = cars.reduce((list, car, idx) => {
+            const quota = Math.floor(car.fitness / fitnessSum * 10)
+            return [ ...list, Array(quota).fill(idx)  ]
+        }, [])
+
+        return Array(pairs).fill(0).reduce((acc, _) => {
+            const mom = fitnessList[Math.floor(Math.random() * fitnessList.length)]
+            const dad = fitnessList[Math.floor(Math.random() * fitnessList.length)]
+            return [ ...acc, [mom, dad] ]
+        }, [])
+    }
+
     static adjust(output: Matrix): boolean[] {
         const max = Math.max(output.matrix[0][0], output.matrix[1][0])
 

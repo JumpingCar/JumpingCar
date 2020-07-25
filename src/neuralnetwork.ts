@@ -58,14 +58,13 @@ export default class NeuralNetwork {
         }
     }
 
-    static crossover(nn1:NeuralNetwork, nn2:NeuralNetwork): number[][] {
+    static crossover(nn1: NeuralNetwork, nn2: NeuralNetwork): number[][] {
         const parentGene1 : number[] = nn1.exportGenes()
         const parentGene2 : number[] = nn2.exportGenes()
         if (parentGene1.length != parentGene2.length)
             throw new Error("Wrong Arity")
 
         let children : number[][] = []
-
 
         //Parent : 2 new children
         children = children.concat([parentGene1, parentGene2])
@@ -130,14 +129,14 @@ export default class NeuralNetwork {
         return children // total 8 new children.
     }
 
-    static mutation(genesList : number[][]): number[][] {
-        const children : number[][] = genesList
-        const mut1 : number = Math.floor(Math.random() * genesList.length)
-        const mut2 : number = Math.floor(Math.random() * genesList.length)
-        const child1 : number[] = genesList[mut1]
-        const child2 : number[] = genesList[mut2]
-        let pivot1 : number[]
-        let pivot2 : number[]
+    static mutation(genesList: number[][]): number[][] {
+        const children: number[][] = genesList
+        const mut1: number = Math.floor(Math.random() * genesList.length)
+        const mut2: number = Math.floor(Math.random() * genesList.length)
+        const child1: number[] = genesList[mut1]
+        const child2: number[] = genesList[mut2]
+        let pivot1: number[]
+        let pivot2: number[]
 
         for (let i = 0; i < child1.length; i++) {
             pivot1.push(Math.floor(Math.random()*2)) // 'pivot1' is array of 0 or 1.
