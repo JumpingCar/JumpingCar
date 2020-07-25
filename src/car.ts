@@ -20,6 +20,7 @@ export class Car {
     radius: number
     walls: Boundary[]
     currentSection: number
+    color: [number, number, number]
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
@@ -39,6 +40,7 @@ export class Car {
             new Ray(this.pos, this.angle),
             new Ray(this.pos, this.angle + p.PI / 4)
         ]
+        this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
     }
 
     static selection(cars: Car[], pairs: number): Car[] {
@@ -109,6 +111,7 @@ export class Car {
                 if (pt) {
                     p.stroke(255, 0, 0)
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
+                    p.stroke(255)
                     const d = p5.Vector.dist(this.pos, pt)
                     this.raySensor[i] = d
                     if(d < record && d < this.sight) {
@@ -125,13 +128,13 @@ export class Car {
     }
 
     show(p: p5): void {
-        // p.stroke(255);
-        p.fill(204, 102, 0)
-        //p.strokeWeight(2);
-        p.ellipse(this.pos.x, this.pos.y, this.radius * 2)
+        p.fill(...this.color)
+        p.noStroke()
+        p.circle(this.pos.x, this.pos.y, this.radius * 2)
         for (const ray of this.rays) {
             ray.show(p);
         }
+        p.stroke(255)
     }
 
     makeray(p: p5): void {
