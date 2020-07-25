@@ -57,7 +57,7 @@ export default class Track {
     }
 
     public draw(p: p5): void {
-        p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.sections[0].mid.y)
+        p.translate(p.width / 2 - this.car.pos.x, p.height / 2 - this.car.pos.y)
 
         // draw car
         this.car.update(p)
