@@ -91,7 +91,7 @@ export class Car {
         }
     }
 
-    show(p:p5) {
+    show (p:p5) {
         // p.stroke(255);
         p.fill(204, 102, 0)
         //p.strokeWeight(2);
