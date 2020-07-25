@@ -16,11 +16,12 @@ export class Car {
         this.acc = p.createVector(1, 0);
         this.dead = false
         this.sight = 50
-        this.rays = []
         this.angle = this.vel.angleBetween(p.createVector(1,0))
-        for (let a = this.angle - p.PI/4 ; a < this.angle + p.PI/2 ; a+= p.PI/4) { //-45, 0 45도 3개의 ray
-            this.rays.push(new Ray(this.pos, a))
-        }
+        this.rays = [
+            new Ray(this.pos, this.angle - p.PI / 4),
+            new Ray(this.pos, this.angle),
+            new Ray(this.pos, this.angle + p.PI / 4)
+        ]
     }
     
     update(p:p5, Left_Right: Boolean[]) {
@@ -84,13 +85,11 @@ export class Car {
     }
 
     makeray(p:p5){
-        this.rays = []
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
-        this.rays.push(new Ray(this.pos, this.angle))
-        for (let a = this.angle - p.PI/4 ; a < this.angle + p.PI/2 ; a+= p.PI/4) { //-45, 0 45도 3개의 ray
-            this.rays.push(new Ray(this.pos, a))
-        }
+        this.rays = [
+            new Ray(this.pos, this.angle - p.PI / 4),
+            new Ray(this.pos, this.angle),
+            new Ray(this.pos, this.angle + p.PI / 4)
+        ]
     }
-    
-    
 }
