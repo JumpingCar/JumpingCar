@@ -21,6 +21,7 @@ export default class Track {
     deadCount: number
     furthest: number
     generations: number
+    fittest: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -51,8 +52,9 @@ export default class Track {
 
         this.generations = 0
         this.furthest = 0
-        this.population = 50
+        this.population = 100
         this.deadCount = 0
+        this.fittest = 0
         this.cars = []
         const initialWalls = [
             new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
@@ -82,19 +84,25 @@ export default class Track {
             if (!this.cars[i].dead) {
                 this.cars[i].update(p)
 
-                // if (this.cars[i].vel.mag() < 10) {
-                //     console.log(i, this.cars[i].vel, this.cars[i].acc)
-                // }
-
-                if (this.cars[this.furthest].currentSection < this.cars[i].currentSection && !this.cars[i].dead)
+                if (
+                    this.cars[this.furthest].currentSection < this.cars[i].currentSection && !this.cars[i].dead
+                    || this.cars[this.furthest].dead
+                )
                     this.furthest = i
 
-                if (this.cars[i].dead)
+                if (this.cars[i].dead) {
                     this.deadCount += 1
+                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount}`
+                    if (this.fittest < this.cars[i].fitness) {
+                        this.fittest = this.cars[i].fitness
+                        document.getElementById("#fittest").innerHTML = `Fittest: ${Math.round(this.fittest * 100) / 100}`
+                    }
+                }
 
                 this.cars[i].updateCurrentSection(p, this.sections)
+            } else {
+                this.cars[i].show(p)
             }
-            this.cars[i].show(p)
         }
 
         // draw track
