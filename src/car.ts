@@ -27,6 +27,7 @@ export class Car {
     jumpDistance : number
     distance: number
 
+
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
@@ -43,6 +44,7 @@ export class Car {
         this.makeray(p)
         this.raySensor = new Array(this.rays.length).fill(this.sight)
         this.network = new NeuralNetwork(this.raySensor.length, 10, 3)
+
         this.jumpRays = [
             new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
             new Ray(this.pos, this.angle, this.jumpDistance),
@@ -185,6 +187,12 @@ export class Car {
             new Ray(this.pos, this.angle + p.PI / 3, this.sight),
             new Ray(this.pos, this.angle + p.PI / 2, this.sight)
         ]
+        this.jumpRays = [
+            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
+            new Ray(this.pos, this.angle, this.jumpDistance),
+            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
+        ]
+
     }
 
     setWalls(walls: Boundary[]): void {

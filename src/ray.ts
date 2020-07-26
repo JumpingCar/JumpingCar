@@ -11,6 +11,7 @@ export class Ray {
     pos : Vector
     angle : number
     dir : Vector
+    destination : Vector
 
     constructor(pos : Vector, angle : number, length : number) {
         this.pos = pos;

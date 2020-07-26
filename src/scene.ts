@@ -1,9 +1,11 @@
 import * as p5 from 'p5';
 
 export class Scene {
-  public preload(p: p5){
+  public preload() : void {
+    return;
   }
-  public setup(p: p5){
+  public setup() : void{
+      return;
   }
 
   public draw(p: p5): void {
