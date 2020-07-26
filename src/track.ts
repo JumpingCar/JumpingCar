@@ -51,7 +51,7 @@ export default class Track {
 
         this.generations = 0
         this.furthest = 0
-        this.population = 30
+        this.population = 50
         this.deadCount = 0
         this.cars = []
         const initialWalls = [
@@ -73,6 +73,7 @@ export default class Track {
             this.deadCount = 0
             this.generateNextGenAlt(p)
             this.generations += 1
+            document.getElementById("#count").innerHTML = `Generations: ${this.generations}`
             this.furthest = 0
             return
         }
@@ -81,9 +82,13 @@ export default class Track {
             if (!this.cars[i].dead) {
                 this.cars[i].update(p)
 
-                if (this.cars[this.furthest].currentSection < this.cars[i].currentSection) 
+                // if (this.cars[i].vel.mag() < 10) {
+                //     console.log(i, this.cars[i].vel, this.cars[i].acc)
+                // }
+
+                if (this.cars[this.furthest].currentSection < this.cars[i].currentSection && !this.cars[i].dead)
                     this.furthest = i
- 
+
                 if (this.cars[i].dead)
                     this.deadCount += 1
 

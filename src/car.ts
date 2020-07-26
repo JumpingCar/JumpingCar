@@ -181,8 +181,9 @@ export class Car {
             }
             if (record < this.radius) {
                 this.dead = true
-                this.fitness = this.currentSection + 1
-                console.log('Current Section: ', this.currentSection)
+                this.fitness = this.currentSection + 1 + this.distance / 100
+                // console.log("Current Distance ", this.distance)
+                // console.log('Current Section: ', this.currentSection)
             }
         }
     }
