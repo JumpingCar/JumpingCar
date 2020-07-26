@@ -77,9 +77,6 @@ export class Car {
     }
 
     update(p: p5): void {
-        this.makeray(p)
-        this.look(p)
-
         const output = this.network.feedforward(this.raySensor)
         const decisions = Car.adjust(output)
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
@@ -128,38 +125,17 @@ export class Car {
                 this.acc.limit(0.02)
             }
 
-            // if (decisions[0]) {
-            //     this.acc = left
-            //     this.acc.setMag(max * 0.1);
-            //     this.acc.rotate(-p.PI / 8 * max / 100)
-            //     this.acc.limit(0.3);
-            // } else if (decisions[1]) {
-            //     this.acc = right
-            //     this.acc.setMag(max * 0.1);
-            //     this.acc.rotate(+p.PI / 8 * max / 100)
-            //     this.acc.limit(0.3);
-            // } else {
-            //     this.acc = this.vel.copy()
-            //     this.acc.setMag(0.3)
-            // }
-
-            // // if (decisions[2] && this.jumpTime == 0)
-            // //     this.isJumping = true
-            // //
-
-            // if (this.acc.mag() < 1e-4)
-            //     this.acc.setMag(0.1)
-
             this.vel.add(this.acc);
-
             if (decisions[2])
                 this.vel.limit(5)
             else
                 this.vel.limit(10);
-
             this.pos.add(this.vel);
             this.distance += this.vel.mag()
         }
+        this.show(p)
+        this.makeray(p)
+        this.look(p)
     }
 
     look(p: p5): void {
@@ -181,7 +157,7 @@ export class Car {
             }
             if (record < this.radius) {
                 this.dead = true
-                this.fitness = this.currentSection + 1 + this.distance / 100
+                this.fitness = this.currentSection + this.distance / 100
                 // console.log("Current Distance ", this.distance)
                 // console.log('Current Section: ', this.currentSection)
             }
@@ -216,7 +192,7 @@ export class Car {
     }
 
     updateCurrentSection(p: p5, sections: Section[]): void {
-        const cur = sections[this.currentSection]
+        const cur = sections[this.currentSection % sections.length]
         const next = sections[(this.currentSection + 1) % sections.length]
         const nextnext = sections[(this.currentSection + 2) % sections.length]
 
@@ -233,7 +209,7 @@ export class Car {
                 new Boundary(p, next.left.x, next.left.y, nextnext.left.x, nextnext.left.y),
                 new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
             ]
-            this.currentSection  = (this.currentSection + 1) % sections.length
+            this.currentSection += 1
         }
     }
 
