@@ -149,9 +149,9 @@ export default class NeuralNetwork {
         }
     }
 
-    static mutateOne(genes: number[]): void {
+    static mutateOne(genes: number[], threshold: number): void {
         genes.forEach((gene, idx) => {
-            if (Math.random() < 0.2)
+            if (Math.random() < threshold)
                 genes[idx] *= -1
         })
     }

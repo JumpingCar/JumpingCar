@@ -143,19 +143,34 @@ export default class Track {
         // 30 are offsprings
         // 10 are mutated
 
-        const top3 = [0, 1, 2].map(idx => sorted[idx].network.exportGenes())
-        const random = [...Array(7).keys()].map(_ => (new NeuralNetwork(7, 10, 3)).exportGenes())
+        // 100 total
+        // 8 are top 8          --> 8
+        // 12 are random        --> 20
+        // 60 are offsprings    --> 60
+        // 20 are mutated       --> 20
 
-        const parentPairs = Car.selection(this.cars, 20)
+        const topCount = 8
+        const randomCount = 12
+        const offspringCount = 40
+        const softMutationCount = 20
+        const hardMutationCount = 20
+
+        const topParents = [...Array(topCount).keys()].map(idx => sorted[idx].network.exportGenes())
+        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(7, 10, 3)).exportGenes())
+
+        const parentPairs = Car.selection(this.cars, (offspringCount + hardMutationCount + softMutationCount) / 2)
         const offsprings: number[][] = parentPairs.reduce((nextgen, pair) => {
             const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
             return [...nextgen, ...children]
         }, [] as number[][])
 
-        for (let i = 0; i < 10; i++)
-            NeuralNetwork.mutateOne(offsprings[i])
+        for (let i = 0; i < hardMutationCount; i++)
+            NeuralNetwork.mutateOne(offsprings[i], 0.2)
 
-        const children = [...top3, ...random, ...offsprings]
+        for (let i = 0; i < softMutationCount; i++)
+            NeuralNetwork.mutateOne(offsprings[hardMutationCount + i], 0.05)
+
+        const children = [...topParents, ...random, ...offsprings]
 
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
