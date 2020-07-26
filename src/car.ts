@@ -32,10 +32,7 @@ export class Car {
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.dead = false
-        this.sight = 60
-        this.angle = this.vel.angleBetween(p.createVector(1,0))
-        this.network = new NeuralNetwork(3, 3, 3)
-        this.raySensor = new Array(3).fill(this.sight)
+        this.sight = 50
         this.fitness = 0
         this.radius = 8
         this.walls = walls
@@ -43,11 +40,9 @@ export class Car {
         this.jumpDistance = 60
         this.isJumping = false
         this.jumpTime = 0;
-        this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
-            new Ray(this.pos, this.angle, this.sight),
-            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
-        ]
+        this.makeray(p)
+        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.network = new NeuralNetwork(this.raySensor.length, 10, 3)
         this.jumpRays = [
             new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
             new Ray(this.pos, this.angle, this.jumpDistance),
@@ -87,7 +82,7 @@ export class Car {
 
         const output = this.network.feedforward(this.raySensor)
         const decisions = Car.adjust(output)
-        let max = Math.max(output.matrix[0][0], output.matrix[1][0])
+        const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
 
         if (!this.dead) {
 
@@ -185,9 +180,13 @@ export class Car {
     makeray(p: p5): void {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4, this.sight),
+            new Ray(this.pos, this.angle - p.PI / 2, this.sight),
+            new Ray(this.pos, this.angle - p.PI / 3, this.sight),
+            new Ray(this.pos, this.angle - p.PI / 8, this.sight),
             new Ray(this.pos, this.angle, this.sight),
-            new Ray(this.pos, this.angle + p.PI / 4, this.sight)
+            new Ray(this.pos, this.angle + p.PI / 8, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 3, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 2, this.sight)
         ]
     }
 
@@ -228,15 +227,10 @@ export class Car {
         this.currentSection = 0
         this.walls = walls
         this.network.importGenes(genes)
-        this.angle = this.vel.angleBetween(p.createVector(1,0))
-        this.rays = [
-            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
-            new Ray(this.pos, this.angle, this.jumpDistance),
-            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
-        ]
+        this.makeray(p)
         this.dead = false
         this.fitness = 0
-        this.raySensor = new Array(3).fill(this.sight)
+        this.raySensor = new Array(this.rays.length).fill(this.sight)
         this.distance = 0
     }
 }
