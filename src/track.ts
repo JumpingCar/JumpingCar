@@ -20,6 +20,7 @@ export default class Track {
     population: number
     deadCount: number
     furthest: number
+    generations: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -48,6 +49,7 @@ export default class Track {
         this.initializeCurve(p)
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
 
+        this.generations = 0
         this.furthest = 0
         this.population = 30
         this.deadCount = 0
@@ -69,7 +71,8 @@ export default class Track {
 
         if (this.deadCount === this.population) {
             this.deadCount = 0
-            this.generateNextGen(p)
+            this.generateNextGenAlt(p)
+            this.generations += 1
             this.furthest = 0
             return
         }
@@ -114,6 +117,40 @@ export default class Track {
 
 
         NeuralNetwork.mutation(children)
+
+        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+        const initialWalls = [
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+            new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+        ]
+
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
+    }
+
+    generateNextGenAlt(p: p5): void {
+        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+
+        // 50 total
+        // 3 are top 3
+        // 7 are random
+        // 30 are offsprings
+        // 10 are mutated
+
+        const top3 = [0, 1, 2].map(idx => sorted[idx].network.exportGenes())
+        const random = [...Array(7).keys()].map(_ => (new NeuralNetwork(7, 10, 3)).exportGenes())
+
+        const parentPairs = Car.selection(this.cars, 20)
+        const offsprings: number[][] = parentPairs.reduce((nextgen, pair) => {
+            const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
+            return [...nextgen, ...children]
+        }, [] as number[][])
+
+        for (let i = 0; i < 10; i++)
+            NeuralNetwork.mutateOne(offsprings[i])
+
+        const children = [...top3, ...random, ...offsprings]
 
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
