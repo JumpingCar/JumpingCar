@@ -1,6 +1,7 @@
 import * as p5 from 'p5'
 import { Car } from './car'
 import { Boundary } from './boundary'
+import NeuralNetwork from './neuralnetwork'
 
 export interface Section {
     left: p5.Vector
@@ -17,6 +18,10 @@ export default class Track {
     maxDistance: number
     cars: Car[]
     population: number
+    deadCount: number
+    furthest: number
+    generations: number
+    fittest: number
 
     public setup(p: p5): void {
         p.background(230)
@@ -45,7 +50,11 @@ export default class Track {
         this.initializeCurve(p)
         const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
 
-        this.population = 10
+        this.generations = 0
+        this.furthest = 0
+        this.population = 100
+        this.deadCount = 0
+        this.fittest = 0
         this.cars = []
         const initialWalls = [
             new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
@@ -60,12 +69,40 @@ export default class Track {
     }
 
     public draw(p: p5): void {
-        p.translate(p.width / 2 - this.cars[0].pos.x, p.height / 2 - this.cars[0].pos.y)
+        p.translate(p.width / 2 - this.cars[this.furthest].pos.x, p.height / 2 - this.cars[this.furthest].pos.y)
 
-        for (const car of this.cars) {
-            car.update(p)
-            car.show(p)
-            car.updateCurrentSection(p, this.sections)
+        if (this.deadCount === this.population) {
+            this.deadCount = 0
+            this.generateNextGenAlt(p)
+            this.generations += 1
+            document.getElementById("#count").innerHTML = `Generations: ${this.generations}`
+            this.furthest = 0
+            return
+        }
+
+        for (let i = 0; i < this.cars.length; i++) {
+            if (!this.cars[i].dead) {
+                this.cars[i].update(p)
+
+                if (
+                    this.cars[this.furthest].currentSection < this.cars[i].currentSection && !this.cars[i].dead
+                    || this.cars[this.furthest].dead
+                )
+                    this.furthest = i
+
+                if (this.cars[i].dead) {
+                    this.deadCount += 1
+                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount}`
+                    if (this.fittest < this.cars[i].fitness) {
+                        this.fittest = this.cars[i].fitness
+                        document.getElementById("#fittest").innerHTML = `Fittest: ${Math.round(this.fittest * 100) / 100}`
+                    }
+                }
+
+                this.cars[i].updateCurrentSection(p, this.sections)
+            } else {
+                this.cars[i].show(p)
+            }
         }
 
         // draw track
@@ -77,8 +114,81 @@ export default class Track {
             p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
             p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
         }
-        p.stroke(0)
+        p.stroke(255)
         p.strokeWeight(1)
+    }
+
+    generateNextGen(p: p5): void {
+        const parentPairs: Car[][] = Car.selection(this.cars, this.population / 2 - 1)
+
+        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+
+        const children: number[][] = parentPairs.reduce((nextgen, pair) => {
+            const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
+            return [...nextgen, ...children]
+        }, [] as number[][]).concat([sorted[0].network.exportGenes(), sorted[1].network.exportGenes()])
+
+
+        NeuralNetwork.mutation(children)
+
+        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+        const initialWalls = [
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+            new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+        ]
+
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
+    }
+
+    generateNextGenAlt(p: p5): void {
+        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+
+        // 50 total
+        // 3 are top 3
+        // 7 are random
+        // 30 are offsprings
+        // 10 are mutated
+
+        // 100 total
+        // 8 are top 8          --> 8
+        // 12 are random        --> 20
+        // 60 are offsprings    --> 60
+        // 20 are mutated       --> 20
+
+        const topCount = 8
+        const randomCount = 12
+        const offspringCount = 40
+        const softMutationCount = 20
+        const hardMutationCount = 20
+
+        const topParents = [...Array(topCount).keys()].map(idx => sorted[idx].network.exportGenes())
+        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(7, 10, 3)).exportGenes())
+
+        const parentPairs = Car.selection(this.cars, (offspringCount + hardMutationCount + softMutationCount) / 2)
+        const offsprings: number[][] = parentPairs.reduce((nextgen, pair) => {
+            const children: number[][] = NeuralNetwork.crossover(pair[0].network, pair[1].network)
+            return [...nextgen, ...children]
+        }, [] as number[][])
+
+        for (let i = 0; i < hardMutationCount; i++)
+            NeuralNetwork.mutateOne(offsprings[i], 0.2)
+
+        for (let i = 0; i < softMutationCount; i++)
+            NeuralNetwork.mutateOne(offsprings[hardMutationCount + i], 0.05)
+
+        const children = [...topParents, ...random, ...offsprings]
+
+        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+        const initialWalls = [
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+            new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+            new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+        ]
+
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
     }
 
     initializeConvexHull(): void {
@@ -106,13 +216,10 @@ export default class Track {
             currentVertex = nextVertex
             nextVertex = leftMost
         }
-
-        if (this.hull.length % 2 === 1)
-            this.hull = this.hull.slice(0, this.hull.length - 1)
     }
 
     pushApart(p: p5): void {
-        const dist = 200
+        const dist = 100
         for (let i = 0; i < this.hull.length; i++)
         for (let j = i + 1; j < this.hull.length; j++)
             if (this.hull[i].dist(this.hull[j]) < dist) {

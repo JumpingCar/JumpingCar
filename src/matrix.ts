@@ -5,7 +5,7 @@ export default class Matrix {
 
     // randomly initializes a matrix of the given row and column with random values of range [-1, 1)
     constructor(row: number, column: number) {
-        this.matrix = Array(row).fill(0).map(_ => Array(column).fill(Math.random() * 2 - 1))
+        this.matrix = Array(row).fill(0).map(_ => Array(column).fill(Math.random() * 50 - 25))
         this.row = row
         this.column = column
     }
@@ -96,6 +96,14 @@ export default class Matrix {
 
     static sigmoid(mat: Matrix): Matrix {
         return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x))))
+    }
+
+    static sigmoidVariant(mat: Matrix, maximum: number): Matrix {
+        return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x)) * maximum))
+    }
+
+    static relu(mat: Matrix): Matrix {
+        return Matrix.apply(mat, x => x < 0 ? 0 : x)
     }
 
     toString(): string {
