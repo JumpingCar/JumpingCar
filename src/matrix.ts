@@ -98,6 +98,10 @@ export default class Matrix {
         return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x))))
     }
 
+    static sigmoidVariant(mat: Matrix, maximum: number): Matrix {
+        return Matrix.apply(mat, x => (1 / (1 + Math.exp(-x)) * maximum))
+    }
+
     static relu(mat: Matrix): Matrix {
         return Matrix.apply(mat, x => x < 0 ? 0 : x)
     }
