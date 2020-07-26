@@ -104,13 +104,13 @@ export class Car {
 
             // }
             let theta : number;
-            theta = -p.PI / 8 //turn left
+            theta = -p.PI / 4 //turn left
             const left : p5.Vector = p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
 
-            theta = p.PI / 8 //turn right
+            theta = p.PI / 4 //turn right
             const right : p5.Vector =  p.createVector(
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
@@ -118,25 +118,45 @@ export class Car {
 
             if (decisions[0]) {
                 this.acc = left
-                this.acc.setMag(max*0.001);
-                this.acc.limit(0.13);
-            }
-            else if (decisions[1]) {
+                this.acc.limit(0.3)
+                this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+            } else if (decisions[1]) {
                 this.acc = right
-                this.acc.setMag(max*0.001);
-                this.acc.limit(0.13);
+                this.acc.limit(0.3)
+                this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+            } else {
+                this.acc.limit(0.02)
             }
-            else {
-                max = 0
-                this.acc.setMag(0.13);
-            }
-            
-            // if (decisions[2] && this.jumpTime == 0)
-            //     this.isJumping = true 
-            //
+
+            // if (decisions[0]) {
+            //     this.acc = left
+            //     this.acc.setMag(max * 0.1);
+            //     this.acc.rotate(-p.PI / 8 * max / 100)
+            //     this.acc.limit(0.3);
+            // } else if (decisions[1]) {
+            //     this.acc = right
+            //     this.acc.setMag(max * 0.1);
+            //     this.acc.rotate(+p.PI / 8 * max / 100)
+            //     this.acc.limit(0.3);
+            // } else {
+            //     this.acc = this.vel.copy()
+            //     this.acc.setMag(0.3)
+            // }
+
+            // // if (decisions[2] && this.jumpTime == 0)
+            // //     this.isJumping = true
+            // //
+
+            // if (this.acc.mag() < 1e-4)
+            //     this.acc.setMag(0.1)
 
             this.vel.add(this.acc);
-            this.vel.limit(10);
+
+            if (decisions[2])
+                this.vel.limit(5)
+            else
+                this.vel.limit(10);
+
             this.pos.add(this.vel);
             this.distance += this.vel.mag()
         }
