@@ -28,11 +28,12 @@ export default class NeuralNetwork {
         this.layers[0] = Matrix.from(inputs.map(n => [n]))
 
         for (let i = 1; i < this.layers.length; i++)
-            this.layers[i] = Matrix.relu(
+            this.layers[i] = Matrix.sigmoidVariant(
                 Matrix.add(
                     Matrix.dot(this.weights[i - 1], this.layers[i - 1]),
                     this.bias[i - 1]
-                )
+                ),
+                100
             )
 
         return this.layers[this.layers.length - 1]
@@ -68,9 +69,9 @@ export default class NeuralNetwork {
         // children = children.concat([parentGene1, parentGene2])
 
         // 1 point Crossover : 2 new children
-        let child1 : number[] = []
-        let child2 : number[] = []
-        let pivot1 : number = Math.floor(Math.random() * parentGene1.length)
+        const child1 : number[] = []
+        const child2 : number[] = []
+        const pivot1 : number = Math.floor(Math.random() * parentGene1.length)
 
         for (let i = 0; i < pivot1; i++) {
             child1.push(parentGene1[i])
@@ -146,5 +147,12 @@ export default class NeuralNetwork {
             if (pivot2[i] == 1)
                 genesList[mut2][i] *= -1
         }
+    }
+
+    static mutateOne(genes: number[]): void {
+        genes.forEach((gene, idx) => {
+            if (Math.random() < 0.2)
+                genes[idx] *= -1
+        })
     }
 }
