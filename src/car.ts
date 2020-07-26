@@ -32,9 +32,9 @@ export class Car {
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.dead = false
-        this.sight = 50
+        this.sight = 90
         this.fitness = 0
-        this.radius = 8
+        this.radius = 10
         this.walls = walls
         this.currentSection = 0
         this.jumpDistance = 60
