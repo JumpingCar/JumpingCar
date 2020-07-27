@@ -66,7 +66,7 @@ export default class Track {
 
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, this.obstacles[0], this.sections))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, this.obstacles[0], this.sections, this.obstaclesCount))
         }
     }
 
@@ -314,6 +314,7 @@ export default class Track {
 
         this.obstacles = Array(this.sections.length).fill(null)
         this.obstaclesCount = Math.floor(Math.random() * this.obstacles.length)
+        console.log(this.obstaclesCount)
         let count = 0
         while (count < this.obstaclesCount) {
             const index = Math.floor(Math.random() * this.obstacles.length)
