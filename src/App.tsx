@@ -1,3 +1,5 @@
+import * as React from 'react'
+import { useEffect } from 'react'
 import Track from './track'
 import * as p5 from 'p5'
 
@@ -17,4 +19,16 @@ const sketch = (p: p5): void => {
     }
 }
 
-new p5(sketch)
+const App = () => {
+    const container: React.RefObject<HTMLDivElement> = React.createRef()
+
+    useEffect(() => {
+        const canvas = new p5(sketch, container.current)
+
+        return () => { canvas.remove() }
+    })
+
+    return <div id="container" ref={container} />
+}
+
+export default App
