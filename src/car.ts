@@ -153,7 +153,7 @@ export class Car {
             for (const wall of this.walls) {
                 const pt = ray.cast(p, wall)
                 if (pt) {
-                    p.stroke(255, 0, 0)
+                    p.stroke(255, 92, 92)
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     p.stroke(255)
                     const d = p5.Vector.dist(this.pos, pt)

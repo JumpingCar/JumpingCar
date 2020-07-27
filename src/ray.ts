@@ -25,7 +25,7 @@ export class Ray {
     }
 
     show(p:p5) :void {
-        p.stroke(255);
+        p.stroke(255, 10);
         p.push();
         p.translate(this.pos.x, this.pos.y);
         p.line(0, 0, this.dir.x, this.dir.y);
