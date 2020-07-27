@@ -20,6 +20,7 @@ export class Car {
     fitness: number
     radius: number
     walls: Boundary[]
+    obstacles: Boundary[]
     currentSection: number
     color: [number, number, number]
     isJumping : boolean
@@ -30,7 +31,7 @@ export class Car {
     distance: number
     closeEncounter: number
 
-    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], sections: Section[]) {
+    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacles: Boundary[], sections: Section[]) {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
@@ -40,6 +41,7 @@ export class Car {
         this.radius = 14
         this.closeEncounter = 0
         this.walls = walls
+        this.obstacles = obstacles
         this.currentSection = 0
         this.jumpDistance = 60
         this.isJumping = false
