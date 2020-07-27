@@ -118,12 +118,16 @@ export class Car {
 
             if (decisions[0]) {
                 this.acc = left
-                this.acc.limit(0.3)
-                this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+                // this.acc.limit(0.3)
+                // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+                this.acc.limit(1)
+                this.acc.rotate(-max / 100 * p.PI / 5)
             } else if (decisions[1]) {
                 this.acc = right
-                this.acc.limit(0.3)
-                this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+                // this.acc.limit(0.3)
+                // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
+                this.acc.limit(1)
+                this.acc.rotate(max / 100 * p.PI / 5)
             } else {
                 this.acc.limit(0.02)
             }
@@ -133,6 +137,7 @@ export class Car {
                 this.vel.limit(5)
             else
                 this.vel.limit(10);
+                // this.vel.limit(6);
             this.pos.add(this.vel);
             this.distance += this.vel.mag()
         }
