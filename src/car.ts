@@ -26,7 +26,7 @@ export class Car {
     jumpRays : Ray[]
     jumpDistance : number
     distance: number
-
+    closeEncounter: number
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
         this.pos = startingPoint.copy()
@@ -36,6 +36,7 @@ export class Car {
         this.sight = 120
         this.fitness = 0
         this.radius = 14
+        this.closeEncounter = 0
         this.walls = walls
         this.currentSection = 0
         this.jumpDistance = 60
@@ -151,17 +152,23 @@ export class Car {
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     p.stroke(255)
                     const d = p5.Vector.dist(this.pos, pt)
-                    this.raySensor[i] = 50 - d
+                    this.raySensor[i] = this.sight - d
                     if(d < record && d < this.sight) {
                         record = d;
+                    }
+                    if (d * 4 < this.sight) {
+                        this.closeEncounter += 1
                     }
                 }
             }
             if (record < this.radius) {
                 this.dead = true
-                this.fitness = this.currentSection + this.distance / 100
+                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
+                if (this.fitness < 0)
+                    this.fitness = 1
                 // console.log("Current Distance ", this.distance)
                 // console.log('Current Section: ', this.currentSection)
+                // console.log('Close Encounter: ', this.closeEncounter)
             }
         }
     }
@@ -237,6 +244,7 @@ export class Car {
         this.makeray(p)
         this.dead = false
         this.fitness = 0
+        this.closeEncounter = 0
         this.raySensor = new Array(this.rays.length).fill(this.sight)
         this.distance = 0
     }
