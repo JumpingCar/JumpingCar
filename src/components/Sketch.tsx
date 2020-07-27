@@ -26,7 +26,7 @@ const Sketch: React.FC = () => {
         const canvas = new p5(sketch, container.current)
 
         return () => { canvas.remove() }
-    })
+    }, [])
 
     return <div id="container" ref={container} />
 }
