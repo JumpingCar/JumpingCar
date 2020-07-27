@@ -15,6 +15,7 @@ export default class Track {
     controlPoints: p5.Vector[][]
     sections: Section[]
     obstacles: Boundary[]
+    obstaclesCount: number
     curve: boolean[]
     maxDistance: number
     cars: Car[]
@@ -311,16 +312,17 @@ export default class Track {
             }
         }
 
-        this.obstacles = []
-        for (let i = 0; i < this.sections.length; i++) {
-            if (Math.random() < 0.2) {
-                const next = (i + 1) % this.sections.length
-                this.obstacles.push(new Boundary(p, this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y))
-            } else {
-                this.obstacles.push(null)
+        this.obstacles = Array(this.sections.length).fill(null)
+        this.obstaclesCount = Math.floor(Math.random() * this.obstacles.length)
+        let count = 0
+        while (count < this.obstaclesCount) {
+            const index = Math.floor(Math.random() * this.obstacles.length)
+
+            if (this.obstacles[index] === null) {
+                const next = (index + 1) % this.sections.length
+                this.obstacles[index] = new Boundary(p, this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y)
+                count += 1
             }
         }
-
-        console.log(this.sections.length)
     }
 }
