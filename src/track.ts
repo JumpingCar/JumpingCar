@@ -64,7 +64,7 @@ export default class Track {
 
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, this.sections))
         }
     }
 
@@ -82,7 +82,7 @@ export default class Track {
 
         for (let i = 0; i < this.cars.length; i++) {
             if (!this.cars[i].dead) {
-                this.cars[i].update(p)
+                this.cars[i].update(p, this.sections)
 
                 if (
                     this.cars[this.furthest].currentSection < this.cars[i].currentSection && !this.cars[i].dead
@@ -139,7 +139,7 @@ export default class Track {
             new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
         ]
 
-        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx], this.sections))
     }
 
     generateNextGenAlt(p: p5): void {
@@ -188,7 +188,7 @@ export default class Track {
             new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
         ]
 
-        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx]))
+        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx], this.sections))
     }
 
     initializeConvexHull(): void {

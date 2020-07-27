@@ -5,6 +5,7 @@ import Matrix from './matrix';
 import NeuralNetwork from './neuralnetwork';
 import { Section } from './track'
 import MathUtils from './utils/MathUtils'
+import { jumpRay } from './jumpRay';
 
 export class Car {
     pos : p5.Vector
@@ -23,12 +24,13 @@ export class Car {
     color: [number, number, number]
     isJumping : boolean
     jumpTime : number
-    jumpRays : Ray[]
+    jumpRay : jumpRay
     jumpDistance : number
+    jumpValue : number
     distance: number
     closeEncounter: number
 
-    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
+    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], sections: Section[]) {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
@@ -42,15 +44,10 @@ export class Car {
         this.jumpDistance = 60
         this.isJumping = false
         this.jumpTime = 0;
-        this.makeray(p)
-        this.raySensor = new Array(this.rays.length).fill(this.sight)
-        this.network = new NeuralNetwork(this.raySensor.length, 6, 3)
-
-        this.jumpRays = [
-            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
-            new Ray(this.pos, this.angle, this.jumpDistance),
-            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
-        ]
+        this.jumpValue = -100;
+        this.makeray(p, sections)
+        this.raySensor = new Array(this.rays.length).fill(-this.sight)
+        this.network = new NeuralNetwork(this.raySensor.length + 1, 6, 3)
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
         this.distance = 0
     }
@@ -79,11 +76,10 @@ export class Car {
         return [ 0 === maxIndex, 1 === maxIndex, 2 === maxIndex ]
     }
 
-    update(p: p5): void {
-        const output = this.network.feedforward(this.raySensor)
+    update(p: p5, sections: Section[]): void {
+        const output = this.network.feedforward(p.concat(this.raySensor, [this.jumpValue]))
         const decisions = Car.adjust(output)
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
-
         if (!this.dead) {
 
             // if(this.isJumping) {
@@ -142,8 +138,9 @@ export class Car {
             this.distance += this.vel.mag()
         }
         this.show(p)
-        this.makeray(p)
+        this.makeray(p, sections)
         this.look(p)
+        this.lookJump(p)
     }
 
     look(p: p5): void {
@@ -178,6 +175,23 @@ export class Car {
         }
     }
 
+    lookJump(p: p5): void {
+        if (!this.isJumping) {
+            const jumpray = this.jumpRay
+            for (const obstacle of this.obstacles) {
+                const pt = jumpray.cast(p, obstacle)
+                if (pt) {
+                    p.stroke(255, 92, 92)
+                    p.line(this.pos.x, this.pos.y, pt.x, pt.y)
+                    p.stroke(255)
+                    this.jumpValue = p5.Vector.dist(this.pos, pt)
+                }
+            }
+        }
+        else
+            this.jumpValue = - 100;
+    }
+
     show(p: p5): void {
         p.fill(...this.color)
         p.noStroke()
@@ -188,7 +202,7 @@ export class Car {
         p.stroke(255)
     }
 
-    makeray(p: p5): void {
+    makeray(p: p5, sections: Section[]): void {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 2, this.sight),
@@ -201,12 +215,12 @@ export class Car {
             new Ray(this.pos, this.angle + p.PI / 2.8, this.sight),
             new Ray(this.pos, this.angle + p.PI / 2, this.sight)
         ]
-        this.jumpRays = [
-            new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
-            new Ray(this.pos, this.angle, this.jumpDistance),
-            new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
-        ]
 
+        //jumpRay
+        const next = sections[(this.currentSection + 1) % sections.length]
+        const nextnext = sections[(this.currentSection + 2) % sections.length]
+        const destination = p5.Vector.add(next.mid, nextnext.mid).div(2);
+        this.jumpRay = new jumpRay(this.pos, destination);
     }
 
     setWalls(walls: Boundary[]): void {
@@ -239,18 +253,18 @@ export class Car {
         this.network.importGenes(genes)
     }
 
-    reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[]): void {
+    reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[], sections: Section[]): void {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.currentSection = 0
         this.walls = walls
         this.network.importGenes(genes)
-        this.makeray(p)
+        this.makeray(p, sections)
         this.dead = false
         this.fitness = 0
         this.closeEncounter = 0
-        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.raySensor = new Array(this.rays.length).fill(-this.sight)
         this.distance = 0
     }
 }
