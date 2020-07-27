@@ -25,33 +25,19 @@ export class Car {
     color: [number, number, number]
     isJumping : boolean
     jumpTime : number
+    jumpDuration : number
     jumpRay : jumpRay
     jumpDistance : number
-    jumpValue : number
+    jumpInput : number
     distance: number
     closeEncounter: number
 
     constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacles: Boundary[], sections: Section[]) {
-        this.pos = startingPoint.copy()
-        this.vel = direction.copy()
-        this.acc = direction.copy()
-        this.dead = false
+
         this.sight = 120
-        this.fitness = 0
-        this.radius = 14
-        this.closeEncounter = 0
-        this.walls = walls
-        this.obstacles = obstacles
-        this.currentSection = 0
-        this.jumpDistance = 60
-        this.isJumping = false
-        this.jumpTime = 0;
-        this.jumpValue = -100;
-        this.makeray(p, sections)
-        this.raySensor = new Array(this.rays.length).fill(-this.sight)
-        this.network = new NeuralNetwork(this.raySensor.length + 1, 6, 3)
+        this.network = new NeuralNetwork(this.raySensor.length + 1, 8, 4)
+        this.reset(p, true, startingPoint, direction, walls, obstacles, [], sections)
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
-        this.distance = 0
     }
 
     static selection(cars: Car[], pairs: number): Car[][] {
@@ -72,35 +58,40 @@ export class Car {
     }
 
     static adjust(output: Matrix): boolean[] {
-        const max = Math.max(output.matrix[0][0], output.matrix[1][0])
-        const maxIndex = [0, 1, 2].reduce((acc, cur) => output.matrix[cur][0] > output.matrix[acc][0] ? cur : acc, 0)
+        const maxIndex = [0, 1, 2, 3].reduce((acc, cur) => output.matrix[cur][0] > output.matrix[acc][0] ? cur : acc, 0)
 
-        return [ 0 === maxIndex, 1 === maxIndex, 2 === maxIndex ]
+        return [ 0 === maxIndex, 1 === maxIndex, 2 === maxIndex, 3 === maxIndex ]
     }
 
     update(p: p5, sections: Section[]): void {
-        const output = this.network.feedforward(p.concat(this.raySensor, [this.jumpValue]))
+        const output = this.network.feedforward(p.concat(this.raySensor, [this.jumpInput]))
         const decisions = Car.adjust(output)
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
         if (!this.dead) {
 
-            // if(this.isJumping) {
-            //     if(this.jumpTime < 30) {
-            //         this.radius += 0.2 //중력가속도
-            //         this.jumpTime += 1
-            //     }
+            if(this.isJumping) {
 
-            //     if(this.jumpTime >= 30) {
-            //         this.radius -= 0.2
-            //         this.jumpTime += 1
-            //     }
+                if(this.jumpTime < this.jumpDuration / 2) {
+                    this.radius += 0.2 //중력가속도
+                    this.jumpTime += 1
+                }
 
-            //     if(this.jumpTime > 60) {
-            //         this.isJumping = false
-            //         this.jumpTime = 0
-            //     }
+                if(this.jumpTime >= this.jumpDuration / 2) {
+                    this.radius -= 0.2
+                    this.jumpTime += 1
+                }
 
-            // }
+                if(this.jumpTime >  this.jumpDuration) {
+                    this.isJumping = false
+                    this.jumpTime = 0
+                    this.jumpDuration = 0
+                }
+
+                this.pos.add(this.vel);
+                this.distance += this.vel.mag()
+
+            } else {
+
             let theta : number;
             theta = -p.PI / 4 //turn left
             const left : p5.Vector = p.createVector(
@@ -113,31 +104,36 @@ export class Car {
                 this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
                 this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
             )
+            if (decisions[3]) {
+                this.isJumping = true
+                const v0 = this.vel.mag()
+                this.vel = this.jumpRay.dir
+                this.vel.setMag(v0)
+                this.jumpDuration = this.jumpDistance / v0
+                this.pos.add(this.vel);
+                this.distance += this.vel.mag()
 
-            if (decisions[0]) {
-                this.acc = left
-                // this.acc.limit(0.3)
-                // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
-                this.acc.limit(1)
-                this.acc.rotate(-max / 100 * p.PI / 5)
-            } else if (decisions[1]) {
-                this.acc = right
-                // this.acc.limit(0.3)
-                // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
-                this.acc.limit(1)
-                this.acc.rotate(max / 100 * p.PI / 5)
             } else {
-                this.acc.limit(0.02)
+                if (decisions[0]) {
+                    this.acc = left
+                    this.acc.limit(1)
+                    this.acc.rotate(-max / 100 * p.PI / 5)
+                } else if (decisions[1]) {
+                    this.acc = right
+                    this.acc.limit(1)
+                    this.acc.rotate(max / 100 * p.PI / 5)
+                } else if (decisions[2]) {
+                    this.acc.limit(0.02)
+                }
+                this.vel.add(this.acc);
+                if (decisions[2])
+                    this.vel.limit(5)
+                else
+                    this.vel.limit(10);
+                this.pos.add(this.vel);
+                this.distance += this.vel.mag()
+                }
             }
-
-            this.vel.add(this.acc);
-            if (decisions[2])
-                this.vel.limit(5)
-            else
-                this.vel.limit(10);
-                // this.vel.limit(6);
-            this.pos.add(this.vel);
-            this.distance += this.vel.mag()
         }
         this.show(p)
         this.makeray(p, sections)
@@ -186,12 +182,12 @@ export class Car {
                     p.stroke(255, 92, 92)
                     p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                     p.stroke(255)
-                    this.jumpValue = p5.Vector.dist(this.pos, pt)
+                    this.jumpInput = p5.Vector.dist(this.pos, pt)
                 }
             }
         }
         else
-            this.jumpValue = - 100;
+            this.jumpInput = - 100;
     }
 
     show(p: p5): void {
@@ -255,18 +251,26 @@ export class Car {
         this.network.importGenes(genes)
     }
 
-    reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[], sections: Section[]): void {
+    reset(p: p5, first: boolean, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacles: Boundary[],  genes: number[], sections: Section[]): void {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.currentSection = 0
+        this.radius = 14
         this.walls = walls
-        this.network.importGenes(genes)
+        this.obstacles = obstacles
+        if (!first)
+            this.network.importGenes(genes)
         this.makeray(p, sections)
         this.dead = false
         this.fitness = 0
         this.closeEncounter = 0
         this.raySensor = new Array(this.rays.length).fill(-this.sight)
         this.distance = 0
+        this.jumpDistance = this.jumpRay.dir.mag()
+        this.isJumping = false
+        this.jumpTime = 0;
+        this.jumpDuration = 0;
+        this.jumpInput = -100;
     }
 }
