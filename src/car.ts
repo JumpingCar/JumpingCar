@@ -5,7 +5,7 @@ import Matrix from './matrix';
 import NeuralNetwork from './neuralnetwork';
 import { Section } from './track'
 import MathUtils from './utils/MathUtils'
-import { jumpRay } from './jumpRay';
+import { JumpRay } from './jumpRay';
 
 export class Car {
     pos : p5.Vector
@@ -26,7 +26,7 @@ export class Car {
     isJumping : boolean
     jumpTime : number
     jumpDuration : number
-    jumpRay : jumpRay
+    jumpRay : JumpRay
     jumpDistance : number
     jumpInput : number
     distance: number
@@ -63,77 +63,70 @@ export class Car {
     }
 
     update(p: p5, sections: Section[]): void {
-        const output = this.network.feedforward(p.concat(this.raySensor, [this.jumpInput]))
+        const output = this.network.feedforward([...this.raySensor, this.jumpInput])
         const decisions = Car.adjust(output)
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
         if (!this.dead) {
-
             if(this.isJumping) {
-
-                if(this.jumpTime < this.jumpDuration / 2) {
-                    this.radius += 0.2 //중력가속도
+                if (this.jumpTime < this.jumpDuration / 2) {
+                    this.radius += 0.4 // 중력가속도
                     this.jumpTime += 1
-                }
-
-                if(this.jumpTime >= this.jumpDuration / 2) {
-                    this.radius -= 0.2
+                } else if (this.jumpTime < this.jumpDuration) {
+                    this.radius -= 0.4
                     this.jumpTime += 1
-                }
-
-                if(this.jumpTime >  this.jumpDuration) {
+                } else {
                     this.isJumping = false
                     this.jumpTime = 0
                     this.jumpDuration = 0
                     this.jumpInput = -100
                     this.jumpDistance = 0;
+                    this.radius = 21
                 }
 
                 this.pos.add(this.vel);
                 this.distance += this.vel.mag()
-
             } else {
+                let theta : number;
+                theta = -p.PI / 4 //turn left
+                const left : p5.Vector = p.createVector(
+                    this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
+                    this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
+                )
 
-            let theta : number;
-            theta = -p.PI / 4 //turn left
-            const left : p5.Vector = p.createVector(
-                this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
-                this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
-            )
-
-            theta = p.PI / 4 //turn right
-            const right : p5.Vector =  p.createVector(
-                this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
-                this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
-            )
-            if (decisions[3]) {
-                this.isJumping = true
-                const v0 = this.vel.mag()
-                this.vel = this.jumpRay.dir
-                this.vel.setMag(v0)
-                this.jumpDistance = this.jumpRay.dir.mag()
-                this.jumpDuration = this.jumpDistance / v0
-                this.pos.add(this.vel);
-                this.distance += this.vel.mag()
-
-            } else {
-                if (decisions[0]) {
-                    this.acc = left
-                    this.acc.limit(1)
-                    this.acc.rotate(-max / 100 * p.PI / 5)
-                } else if (decisions[1]) {
-                    this.acc = right
-                    this.acc.limit(1)
-                    this.acc.rotate(max / 100 * p.PI / 5)
-                } else if (decisions[2]) {
-                    this.acc.limit(0.02)
-                }
-                this.vel.add(this.acc);
-                if (decisions[2])
-                    this.vel.limit(5)
-                else
-                    this.vel.limit(10);
-                this.pos.add(this.vel);
-                this.distance += this.vel.mag()
+                theta = p.PI / 4 //turn right
+                const right : p5.Vector =  p.createVector(
+                    this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
+                    this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
+                )
+                if (decisions[3]) {
+                    this.isJumping = true
+                    const v0 = this.vel.mag()
+                    this.vel = this.jumpRay.dir.copy()
+                    this.vel.setMag(v0)
+                    this.vel.limit(10)
+                    this.jumpDistance = this.jumpRay.dir.mag()
+                    this.jumpDuration = this.jumpDistance / v0
+                    this.pos.add(this.vel);
+                    this.distance += this.vel.mag()
+                } else {
+                    if (decisions[0]) {
+                        this.acc = left
+                        this.acc.limit(1)
+                        this.acc.rotate(-max / 100 * p.PI / 5)
+                    } else if (decisions[1]) {
+                        this.acc = right
+                        this.acc.limit(1)
+                        this.acc.rotate(max / 100 * p.PI / 5)
+                    } else if (decisions[2]) {
+                        this.acc.limit(0.02)
+                    }
+                    this.vel.add(this.acc);
+                    if (decisions[2])
+                        this.vel.limit(5)
+                    else
+                        this.vel.limit(10);
+                    this.pos.add(this.vel);
+                    this.distance += this.vel.mag()
                 }
             }
         }
@@ -163,6 +156,20 @@ export class Car {
                     }
                 }
             }
+
+            // if (!this.isJumping && this.obstacle !== null) {
+            //     const pt = ray.cast(p, this.obstacle)
+            //     if (pt) {
+            //         p.stroke(255, 92, 92)
+            //         p.line(this.pos.x, this.pos.y, pt.x, pt.y)
+            //         p.stroke(255)
+            //         const d = p5.Vector.dist(this.pos, pt)
+            //         if (d < record && d < this.sight) {
+            //             record = d;
+            //         }
+            //     }
+            // }
+
             if (record < this.radius) {
                 this.dead = true
                 this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
@@ -184,6 +191,9 @@ export class Car {
                 p.line(this.pos.x, this.pos.y, pt.x, pt.y)
                 p.stroke(255)
                 this.jumpInput = p5.Vector.dist(this.pos, pt)
+                if (this.jumpInput < this.radius) {
+                    this.dead = true
+                }
             }
         }
         else
@@ -218,14 +228,14 @@ export class Car {
         const next = sections[(this.currentSection + 1) % sections.length]
         const nextnext = sections[(this.currentSection + 2) % sections.length]
         const destination = p5.Vector.add(next.mid, nextnext.mid).div(2);
-        this.jumpRay = new jumpRay(this.pos, destination);
+        this.jumpRay = new JumpRay(this.pos, destination);
     }
 
     setWalls(walls: Boundary[]): void {
         this.walls = walls
     }
 
-    updateCurrentSection(p: p5, sections: Section[]): void {
+    updateCurrentSection(p: p5, sections: Section[], obstacles: Boundary[]): void {
         const cur = sections[this.currentSection % sections.length]
         const next = sections[(this.currentSection + 1) % sections.length]
         const nextnext = sections[(this.currentSection + 2) % sections.length]
@@ -244,6 +254,7 @@ export class Car {
                 new Boundary(p, next.right.x, next.right.y, nextnext.right.x, nextnext.right.y)
             ]
             this.currentSection += 1
+            this.obstacle = obstacles[this.currentSection % sections.length]
         }
     }
 
@@ -256,11 +267,12 @@ export class Car {
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.currentSection = 0
-        this.radius = 14
+        this.radius = 21
         this.walls = walls
         this.obstacle = obstacle
-        if (!first)
+        if (!first) {
             this.network.importGenes(genes)
+        }
         this.makeray(p, sections)
         this.dead = false
         this.fitness = 0

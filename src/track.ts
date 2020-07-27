@@ -100,7 +100,7 @@ export default class Track {
                     }
                 }
 
-                this.cars[i].updateCurrentSection(p, this.sections)
+                this.cars[i].updateCurrentSection(p, this.sections, this.obstacles)
             } else {
                 this.cars[i].show(p)
             }
@@ -171,7 +171,7 @@ export default class Track {
         const hardMutationCount = 20
 
         const topParents = [...Array(topCount).keys()].map(idx => sorted[idx].network.exportGenes())
-        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(9, 6, 3)).exportGenes())
+        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(this.cars[0].raySensor.length + 1, 8, 4)).exportGenes())
 
         const parentPairs = Car.selection(this.cars, (offspringCount + hardMutationCount + softMutationCount) / 2)
         const offsprings: number[][] = parentPairs.reduce((nextgen, pair) => {
@@ -304,9 +304,9 @@ export default class Track {
                 const ty = p.curveTangent(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
                 const angle = p.atan2(ty, tx) - p.PI / 2.0
                 this.sections.push({
-                    left: p5.Vector.mult(p.createVector(x - p.cos(angle) * 30, y - p.sin(angle) * 30), 2),
-                    right: p5.Vector.mult(p.createVector(x + p.cos(angle) * 30, y + p.sin(angle) * 30), 2),
-                    mid: p5.Vector.mult(p.createVector(x, y), 2)
+                    left: p5.Vector.mult(p.createVector(x - p.cos(angle) * 30, y - p.sin(angle) * 30), 3),
+                    right: p5.Vector.mult(p.createVector(x + p.cos(angle) * 30, y + p.sin(angle) * 30), 3),
+                    mid: p5.Vector.mult(p.createVector(x, y), 3)
                 })
             }
         }
@@ -320,5 +320,7 @@ export default class Track {
                 this.obstacles.push(null)
             }
         }
+
+        console.log(this.sections.length)
     }
 }
