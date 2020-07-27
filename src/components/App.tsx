@@ -4,8 +4,6 @@ import GeneEditor from './GeneEditor'
 import './app.css'
 
 const App: React.FC = () => {
-    
-
     return (
         <div>
             <Sketch />
