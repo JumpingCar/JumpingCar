@@ -14,6 +14,7 @@ export default class Track {
     hull: p5.Vector[]
     controlPoints: p5.Vector[][]
     sections: Section[]
+    obstacles: Boundary[]
     curve: boolean[]
     maxDistance: number
     cars: Car[]
@@ -64,7 +65,7 @@ export default class Track {
 
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, this.sections))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, this.obstacles[0], this.sections))
         }
     }
 
@@ -107,13 +108,19 @@ export default class Track {
 
         // draw track
         p.strokeWeight(3)
-        p.stroke(107, 164, 255)
         for (let i = 0; i < this.sections.length; i++) {
+            p.stroke(107, 164, 255)
             const next = (i + 1) % this.sections.length
-            p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[i].right.x, this.sections[i].right.y)
             p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
             p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
+
+            if (this.obstacles[i] !== null)
+                p.stroke(255, 218, 71)
+
+            p.line(this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y)
         }
+
+
         p.stroke(255)
         p.strokeWeight(1)
     }
@@ -139,7 +146,7 @@ export default class Track {
             new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
         ]
 
-        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx], this.sections))
+        this.cars.forEach((car, idx) => car.reset(p, false, startingPoint, perpVec, initialWalls, this.obstacles[0], children[idx], this.sections))
     }
 
     generateNextGenAlt(p: p5): void {
@@ -188,7 +195,7 @@ export default class Track {
             new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
         ]
 
-        this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, children[idx], this.sections))
+        this.cars.forEach((car, idx) => car.reset(p, false, startingPoint, perpVec, initialWalls, this.obstacles[0], children[idx], this.sections))
     }
 
     initializeConvexHull(): void {
@@ -301,6 +308,16 @@ export default class Track {
                     right: p5.Vector.mult(p.createVector(x + p.cos(angle) * 30, y + p.sin(angle) * 30), 2),
                     mid: p5.Vector.mult(p.createVector(x, y), 2)
                 })
+            }
+        }
+
+        this.obstacles = []
+        for (let i = 0; i < this.sections.length; i++) {
+            if (Math.random() < 0.2) {
+                const next = (i + 1) % this.sections.length
+                this.obstacles.push(new Boundary(p, this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y))
+            } else {
+                this.obstacles.push(null)
             }
         }
     }

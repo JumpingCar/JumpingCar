@@ -20,7 +20,7 @@ export class Car {
     fitness: number
     radius: number
     walls: Boundary[]
-    obstacles: Boundary[]
+    obstacle: Boundary
     currentSection: number
     color: [number, number, number]
     isJumping : boolean
@@ -32,11 +32,10 @@ export class Car {
     distance: number
     closeEncounter: number
 
-    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacles: Boundary[], sections: Section[]) {
-
+    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacle: Boundary, sections: Section[]) {
         this.sight = 120
+        this.reset(p, true, startingPoint, direction, walls, obstacle, [], sections)
         this.network = new NeuralNetwork(this.raySensor.length + 1, 8, 4)
-        this.reset(p, true, startingPoint, direction, walls, obstacles, [], sections)
         this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
     }
 
@@ -177,16 +176,14 @@ export class Car {
     }
 
     lookJump(p: p5): void {
-        if (!this.isJumping) {
+        if (!this.isJumping && this.obstacle !== null) {
             const jumpray = this.jumpRay
-            for (const obstacle of this.obstacles) {
-                const pt = jumpray.cast(p, obstacle)
-                if (pt) {
-                    p.stroke(255, 92, 92)
-                    p.line(this.pos.x, this.pos.y, pt.x, pt.y)
-                    p.stroke(255)
-                    this.jumpInput = p5.Vector.dist(this.pos, pt)
-                }
+            const pt = jumpray.cast(p, this.obstacle)
+            if (pt) {
+                p.stroke(255, 92, 92)
+                p.line(this.pos.x, this.pos.y, pt.x, pt.y)
+                p.stroke(255)
+                this.jumpInput = p5.Vector.dist(this.pos, pt)
             }
         }
         else
@@ -254,14 +251,14 @@ export class Car {
         this.network.importGenes(genes)
     }
 
-    reset(p: p5, first: boolean, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacles: Boundary[],  genes: number[], sections: Section[]): void {
+    reset(p: p5, first: boolean, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], obstacle: Boundary,  genes: number[], sections: Section[]): void {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.currentSection = 0
         this.radius = 14
         this.walls = walls
-        this.obstacles = obstacles
+        this.obstacle = obstacle
         if (!first)
             this.network.importGenes(genes)
         this.makeray(p, sections)
