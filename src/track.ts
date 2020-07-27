@@ -82,6 +82,22 @@ export default class Track {
             return
         }
 
+        // draw track
+        p.strokeWeight(3)
+        for (let i = 0; i < this.sections.length; i++) {
+            p.stroke(107, 164, 255)
+            const next = (i + 1) % this.sections.length
+            p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
+            p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
+
+            if (this.obstacles[i] !== null)
+                p.stroke(255, 218, 71)
+
+            p.line(this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y)
+        }
+        p.stroke(255)
+        p.strokeWeight(1)
+
         for (let i = 0; i < this.cars.length; i++) {
             if (!this.cars[i].dead) {
                 this.cars[i].update(p, this.sections)
@@ -106,24 +122,6 @@ export default class Track {
                 this.cars[i].show(p)
             }
         }
-
-        // draw track
-        p.strokeWeight(3)
-        for (let i = 0; i < this.sections.length; i++) {
-            p.stroke(107, 164, 255)
-            const next = (i + 1) % this.sections.length
-            p.line(this.sections[i].left.x, this.sections[i].left.y, this.sections[next].left.x, this.sections[next].left.y)
-            p.line(this.sections[i].right.x, this.sections[i].right.y, this.sections[next].right.x, this.sections[next].right.y)
-
-            if (this.obstacles[i] !== null)
-                p.stroke(255, 218, 71)
-
-            p.line(this.sections[next].left.x, this.sections[next].left.y, this.sections[next].right.x, this.sections[next].right.y)
-        }
-
-
-        p.stroke(255)
-        p.strokeWeight(1)
     }
 
     generateNextGen(p: p5): void {
