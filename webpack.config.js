@@ -2,7 +2,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-    entry: './src/index.ts',
+    entry: './src/index.tsx',
     mode: 'development',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -14,8 +14,12 @@ module.exports = {
     devtool: 'source-map',
     module: {
         rules: [{
-            test: /\.ts$/,
-            loader: 'babel-loader'
+            test: /\.tsx?$/,
+            exclude: /node_modules/,
+            loader: 'babel-loader',
+            resolve: {
+                extensions: ['.ts', '.tsx']
+            }
         }, {
             enforce: 'pre',
             test: /\.js$/,
