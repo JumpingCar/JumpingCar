@@ -19,6 +19,7 @@ export class Car {
     raySensor: number[]
     fitness: number
     radius: number
+    radiusReadOnly: number
     walls: Boundary[]
     obstacle: Boundary
     currentSection: number
@@ -80,7 +81,7 @@ export class Car {
                     this.jumpDuration = 0
                     this.jumpInput = -100
                     this.jumpDistance = 0;
-                    this.radius = 28
+                    this.radius = this.radiusReadOnly
                 }
 
                 this.pos.add(this.vel);
@@ -130,6 +131,26 @@ export class Car {
                 }
             }
         }
+        for (const wall of this.walls) {
+            const dist = MathUtils.lineDotDistance(wall.a.x, wall.a.y, wall.b.x, wall.b.y, this.pos.x, this.pos.y)
+            if (dist < this.radiusReadOnly) {
+                this.dead = true
+                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
+                if (this.fitness < 0)
+                    this.fitness = 1
+            }
+        }
+
+        if (!this.isJumping && this.obstacle !== null) {
+            const dist = MathUtils.lineDotDistance(this.obstacle.a.x, this.obstacle.a.y, this.obstacle.b.x, this.obstacle.b.y, this.pos.x, this.pos.y)
+            if (dist < this.radiusReadOnly) {
+                this.dead = true
+                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
+                if (this.fitness < 0)
+                    this.fitness = 1
+            }
+        }
+
         this.show(p)
         this.makeray(p, sections)
         this.look(p)
@@ -139,7 +160,6 @@ export class Car {
     look(p: p5): void {
         for (let i = 0; i < this.rays.length; i++) {
             const ray = this.rays[i]
-            let record = this.sight
             for (const wall of this.walls) {
                 const pt = ray.cast(p, wall)
                 if (pt) {
@@ -148,36 +168,10 @@ export class Car {
                     p.stroke(255)
                     const d = p5.Vector.dist(this.pos, pt)
                     this.raySensor[i] = this.sight - d
-                    if(d < record && d < this.sight) {
-                        record = d;
-                    }
                     if (d * 4 < this.sight) {
                         this.closeEncounter += 1
                     }
                 }
-            }
-
-            // if (!this.isJumping && this.obstacle !== null) {
-            //     const pt = ray.cast(p, this.obstacle)
-            //     if (pt) {
-            //         p.stroke(255, 92, 92)
-            //         p.line(this.pos.x, this.pos.y, pt.x, pt.y)
-            //         p.stroke(255)
-            //         const d = p5.Vector.dist(this.pos, pt)
-            //         if (d < record && d < this.sight) {
-            //             record = d;
-            //         }
-            //     }
-            // }
-
-            if (record < this.radius) {
-                this.dead = true
-                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
-                if (this.fitness < 0)
-                    this.fitness = 1
-                // console.log("Current Distance ", this.distance)
-                // console.log('Current Section: ', this.currentSection)
-                // console.log('Close Encounter: ', this.closeEncounter)
             }
         }
     }
@@ -189,9 +183,6 @@ export class Car {
             if (pt) {
 
                 const dist = p5.Vector.dist(this.pos, pt)
-                if ( dist < this.radius) {
-                    this.dead = true
-                }
                 if ( dist < 70) {
                     this.jumpInput = p5.Vector.dist(this.pos, pt)
                     p.stroke(255, 92, 92)
@@ -272,6 +263,7 @@ export class Car {
         this.acc = direction.copy()
         this.currentSection = 0
         this.radius = 28
+        this.radiusReadOnly = 28
         this.walls = walls
         this.obstacle = obstacle
         if (!first) {
