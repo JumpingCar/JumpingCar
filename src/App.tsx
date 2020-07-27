@@ -19,7 +19,7 @@ const sketch = (p: p5): void => {
     }
 }
 
-const App = () => {
+const App: React.FC = () => {
     const container: React.RefObject<HTMLDivElement> = React.createRef()
 
     useEffect(() => {
