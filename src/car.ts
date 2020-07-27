@@ -33,9 +33,9 @@ export class Car {
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.dead = false
-        this.sight = 90
+        this.sight = 120
         this.fitness = 0
-        this.radius = 10
+        this.radius = 14
         this.walls = walls
         this.currentSection = 0
         this.jumpDistance = 60
@@ -180,11 +180,13 @@ export class Car {
         this.angle = -this.vel.angleBetween(p.createVector(1, 0))
         this.rays = [
             new Ray(this.pos, this.angle - p.PI / 2, this.sight),
-            new Ray(this.pos, this.angle - p.PI / 3, this.sight),
+            new Ray(this.pos, this.angle - p.PI / 2.8, this.sight),
+            new Ray(this.pos, this.angle - p.PI / 3.6, this.sight),
             new Ray(this.pos, this.angle - p.PI / 8, this.sight),
             new Ray(this.pos, this.angle, this.sight),
             new Ray(this.pos, this.angle + p.PI / 8, this.sight),
-            new Ray(this.pos, this.angle + p.PI / 3, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 3.6, this.sight),
+            new Ray(this.pos, this.angle + p.PI / 2.8, this.sight),
             new Ray(this.pos, this.angle + p.PI / 2, this.sight)
         ]
         this.jumpRays = [
