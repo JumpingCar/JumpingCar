@@ -48,7 +48,7 @@ export default class Track {
         }
 
         this.initializeCurve(p)
-        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
 
         this.generations = 0
         this.furthest = 0
@@ -180,7 +180,7 @@ export default class Track {
 
         const children = [...topParents, ...random, ...offsprings]
 
-        const startingPoint = p5.Vector.add(this.sections[0].mid, this.sections[1].mid).mult(0.5)
+        const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         const initialWalls = [
             new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
