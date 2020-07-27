@@ -80,7 +80,7 @@ export class Car {
                     this.jumpDuration = 0
                     this.jumpInput = -100
                     this.jumpDistance = 0;
-                    this.radius = 21
+                    this.radius = 28
                 }
 
                 this.pos.add(this.vel);
@@ -187,12 +187,16 @@ export class Car {
             const jumpray = this.jumpRay
             const pt = jumpray.cast(p, this.obstacle)
             if (pt) {
-                p.stroke(255, 92, 92)
-                p.line(this.pos.x, this.pos.y, pt.x, pt.y)
-                p.stroke(255)
-                this.jumpInput = p5.Vector.dist(this.pos, pt)
-                if (this.jumpInput < this.radius) {
+
+                const dist = p5.Vector.dist(this.pos, pt)
+                if ( dist < this.radius) {
                     this.dead = true
+                }
+                if ( dist < 70) {
+                    this.jumpInput = p5.Vector.dist(this.pos, pt)
+                    p.stroke(255, 92, 92)
+                    p.line(this.pos.x, this.pos.y, pt.x, pt.y)
+                    p.stroke(255)
                 }
             }
         }
@@ -267,7 +271,7 @@ export class Car {
         this.vel = direction.copy()
         this.acc = direction.copy()
         this.currentSection = 0
-        this.radius = 21
+        this.radius = 28
         this.walls = walls
         this.obstacle = obstacle
         if (!first) {

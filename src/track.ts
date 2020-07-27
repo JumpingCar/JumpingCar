@@ -304,9 +304,9 @@ export default class Track {
                 const ty = p.curveTangent(this.controlPoints[i][0].y, this.hull[i].y, this.hull[next].y, this.controlPoints[i][1].y, j / steps)
                 const angle = p.atan2(ty, tx) - p.PI / 2.0
                 this.sections.push({
-                    left: p5.Vector.mult(p.createVector(x - p.cos(angle) * 30, y - p.sin(angle) * 30), 3),
-                    right: p5.Vector.mult(p.createVector(x + p.cos(angle) * 30, y + p.sin(angle) * 30), 3),
-                    mid: p5.Vector.mult(p.createVector(x, y), 3)
+                    left: p5.Vector.mult(p.createVector(x - p.cos(angle) * 30, y - p.sin(angle) * 30), 4),
+                    right: p5.Vector.mult(p.createVector(x + p.cos(angle) * 30, y + p.sin(angle) * 30), 4),
+                    mid: p5.Vector.mult(p.createVector(x, y), 4)
                 })
             }
         }
