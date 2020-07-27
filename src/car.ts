@@ -43,7 +43,7 @@ export class Car {
         this.jumpTime = 0;
         this.makeray(p)
         this.raySensor = new Array(this.rays.length).fill(this.sight)
-        this.network = new NeuralNetwork(this.raySensor.length, 10, 3)
+        this.network = new NeuralNetwork(this.raySensor.length, 6, 3)
 
         this.jumpRays = [
             new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
