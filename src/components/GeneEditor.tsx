@@ -6,31 +6,14 @@ interface GeneEditorProps {
     handleGeneImport: (val: string) => void
 }
 
-const GeneEditor: React.FC<GeneEditorProps> = ({ handleGeneExport, handleGeneImport }: GeneEditorProps) => {
-    const [editorText, setEditorText] = useState('')
-
-    const handleChange = useCallback(
-        (e: React.ChangeEvent<HTMLTextAreaElement>) => { setEditorText(e.target.value) }, 
-        []
-    )
-
-    const handleExport = useCallback(
-        () => { handleGeneExport(editorText) }, 
-        [editorText]
-    )
-
-    const handleImport = useCallback(
-        () => { handleGeneImport(editorText) }, 
-        [editorText]
-    )
-
+const GeneEditor: React.FC = () => {
     return (
         <div id="gene-editor">
             <h2 className='header'>Gene Editor</h2>
-            <textarea onChange={handleChange}></textarea>
+            <textarea id="gene-editor-textarea"></textarea>
             <div className="buttons">
-                <button onClick={handleImport}>Apply</button>
-                <button onClick={handleExport}>Export</button>
+                <button id="import">Apply</button>
+                <button id="export">Export</button>
             </div>
         </div>
     )

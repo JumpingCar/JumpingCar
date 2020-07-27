@@ -66,6 +66,33 @@ export default class Track {
         for (let i = 0; i < this.population; i++) {
             this.cars.push(new Car(p, startingPoint, perpVec, initialWalls))
         }
+
+        const exportButton = p.select('#export')
+        const importButton = p.select('#import')
+        const textArea = p.select('#gene-editor-textarea')
+        exportButton.mousePressed(() => {
+            const exportValue = this.cars.map(car => car.network.exportGenes().join(' ')).join('\n')
+            textArea.value(exportValue)
+        })
+
+        importButton.mousePressed(() => {
+            const importValue: string = textArea.value().toString()
+            const genes: number[][] = importValue.split('\n').map(row => row.split(' ').map(val => parseFloat(val)))
+
+            this.generations = 0
+            this.deadCount = 0
+            this.fittest = 0
+
+            const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
+            const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+            const initialWalls = [
+                new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+                new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+                new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+            ]
+
+            this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, genes[idx]))
+        })
     }
 
     public draw(p: p5): void {
