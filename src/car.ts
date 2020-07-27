@@ -85,6 +85,8 @@ export class Car {
                     this.isJumping = false
                     this.jumpTime = 0
                     this.jumpDuration = 0
+                    this.jumpInput = -100
+                    this.jumpDistance = 0;
                 }
 
                 this.pos.add(this.vel);
@@ -109,6 +111,7 @@ export class Car {
                 const v0 = this.vel.mag()
                 this.vel = this.jumpRay.dir
                 this.vel.setMag(v0)
+                this.jumpDistance = this.jumpRay.dir.mag()
                 this.jumpDuration = this.jumpDistance / v0
                 this.pos.add(this.vel);
                 this.distance += this.vel.mag()
@@ -267,7 +270,7 @@ export class Car {
         this.closeEncounter = 0
         this.raySensor = new Array(this.rays.length).fill(-this.sight)
         this.distance = 0
-        this.jumpDistance = this.jumpRay.dir.mag()
+        this.jumpDistance = 0
         this.isJumping = false
         this.jumpTime = 0;
         this.jumpDuration = 0;
