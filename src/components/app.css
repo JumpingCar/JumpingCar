@@ -60,12 +60,13 @@
 }
 
 .color {
-    width: 20;
-    height: 20;
-    border-radius: 10px;
+    width: 30;
+    height: 30;
+    border-radius: 15px;
 }
 
 .color-label {
+    font-size: 22px;
     color: #fff;
     text-align: center;
 }

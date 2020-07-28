@@ -159,14 +159,15 @@ export default class NeuralNetwork {
 
     show(p: p5): void {
         const M = this.layers.reduce((acc, layer) => acc > layer.row ? acc : layer.row, -1)
-        const nodeGap = 40
-        const layerGap = 100
-        const radius = 13
+        const nodeGap = 60
+        const layerGap = 140
+        const radius = 16
 
         p.push()
-        p.translate(300, 50)
-
+        p.translate(100, 40)
+        p.textSize(22)
         p.stroke(255)
+        p.strokeWeight(2)
         p.colorMode(p.HSB)
         for (let i = 0; i < this.weights.length; i++) {
             for (let r = 0; r < this.weights[i].row; r++) {
@@ -188,9 +189,10 @@ export default class NeuralNetwork {
                 p.fill(182, this.layers[i].matrix[j][0], 100)
                 p.circle(layerGap * i, (M - this.layers[i].row + 2 * j) * nodeGap / 2, radius * 2)
 
-                if (i === this.layers.length - 1) {
-                    p.text(Math.round(this.layers[i].matrix[j][0] * 100) / 100, layerGap * i + 18, (M - this.layers[i].row + 2 * j) * nodeGap / 2 + 5)
-                }
+                if (i === 0)
+                    p.text(Math.round(this.layers[i].matrix[j][0] * 100) / 100, layerGap * i - 75, (M - this.layers[i].row + 2 * j) * nodeGap / 2 + 10)
+                else if (i === this.layers.length - 1)
+                    p.text(Math.round(this.layers[i].matrix[j][0] * 100) / 100, layerGap * i + 20, (M - this.layers[i].row + 2 * j) * nodeGap / 2 + 10)
             }
         }
         p.pop()
