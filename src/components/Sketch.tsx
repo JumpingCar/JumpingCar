@@ -31,6 +31,10 @@ const sketch = (p: p5): void => {
         p.background(50)
         track.draw(p)
     }
+
+    p.windowResized = (): void => {
+        p.resizeCanvas(p.windowWidth, p.windowHeight)
+    }
 }
 
 const Sketch: React.FC = () => {

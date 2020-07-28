@@ -12,8 +12,8 @@ const GeneEditor: React.FC = () => {
             <h2 className='header'>Gene Editor</h2>
             <textarea id="gene-editor-textarea"></textarea>
             <div className="buttons">
-                <button id="import">Apply</button>
-                <button id="export">Export</button>
+                <button id="gene-import">Import</button>
+                <button id="gene-export">Export</button>
             </div>
         </div>
     )

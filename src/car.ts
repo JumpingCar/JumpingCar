@@ -88,24 +88,6 @@ export class Car {
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
 
         if (!this.dead) {
-
-            // if(this.isJumping) {
-            //     if(this.jumpTime < 30) {
-            //         this.radius += 0.2 //중력가속도
-            //         this.jumpTime += 1
-            //     }
-
-            //     if(this.jumpTime >= 30) {
-            //         this.radius -= 0.2
-            //         this.jumpTime += 1
-            //     }
-
-            //     if(this.jumpTime > 60) {
-            //         this.isJumping = false
-            //         this.jumpTime = 0
-            //     }
-
-            // }
             let theta : number;
             theta = -p.PI / 4 //turn left
             const left : p5.Vector = p.createVector(
@@ -240,6 +222,20 @@ export class Car {
 
     applyGenes(genes: number[]): void {
         this.network.importGenes(genes)
+    }
+
+    toStartingPoint(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]): void {
+        this.pos = startingPoint.copy()
+        this.vel = direction.copy()
+        this.acc = direction.copy()
+        this.currentSection = 0
+        this.walls = walls
+        this.makeray(p)
+        this.dead = false
+        this.fitness = 0
+        this.closeEncounter = 0
+        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.distance = 0
     }
 
     reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[]): void {
