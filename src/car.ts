@@ -45,7 +45,7 @@ export class Car {
         this.isJumping = false
         this.jumpTime = 0;
         this.makeray(p)
-        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.raySensor = new Array(this.rays.length).fill(0)
         this.network = new NeuralNetwork(this.raySensor.length, 6, 3)
         this.id = id
         this.color = Track.colorDictionary(this.id)
@@ -135,6 +135,8 @@ export class Car {
         for (let i = 0; i < this.rays.length; i++) {
             const ray = this.rays[i]
             let record = this.sight
+            this.raySensor[i] = 0
+
             for (const wall of this.walls) {
                 const pt = ray.cast(p, wall)
                 if (pt) {
@@ -151,6 +153,7 @@ export class Car {
                     }
                 }
             }
+
             if (record < this.radius) {
                 this.dead = true
                 this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
@@ -249,7 +252,7 @@ export class Car {
         this.dead = false
         this.fitness = 0
         this.closeEncounter = 0
-        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.raySensor = new Array(this.rays.length).fill(0)
         this.distance = 0
     }
 }
