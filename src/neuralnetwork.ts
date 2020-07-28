@@ -1,4 +1,5 @@
 import Matrix from './matrix'
+import * as p5 from 'p5'
 
 export default class NeuralNetwork {
     layers: Matrix[]
@@ -154,5 +155,40 @@ export default class NeuralNetwork {
             if (Math.random() < threshold)
                 genes[idx] *= -1
         })
+    }
+
+    show(p: p5): void {
+        const M = this.layers.reduce((acc, layer) => acc > layer.row ? acc : layer.row, -1)
+        const nodeGap = 40
+        const layerGap = 100
+        const radius = 13
+
+        p.push()
+        p.translate(300, 50)
+
+        p.stroke(255)
+        p.colorMode(p.HSB)
+        for (let i = 0; i < this.weights.length; i++) {
+            for (let r = 0; r < this.weights[i].row; r++) {
+                for (let c = 0; c < this.weights[i].column; c++) {
+                    if (this.weights[i].matrix[r][c] < 0)
+                        p.stroke(0, 71, 75 - this.weights[i].matrix[r][c] / 2)
+                    else
+                        p.stroke(217, 80, 75 + this.weights[i].matrix[r][c] / 2)
+
+                    p.line(layerGap * i, (M - this.layers[i].row + 2 * c) * nodeGap / 2, layerGap * (i + 1), (M - this.layers[i + 1].row + 2 * r) * nodeGap / 2)
+                    // this.weights[r][c] // i_c -> (i+1)_r
+                }
+            }
+        }
+
+        p.noStroke()
+        for (let i = 0; i < this.layers.length; i++) {
+            for (let j = 0; j < this.layers[i].row; j++) {
+                p.fill(182, this.layers[i].matrix[j][0], 100)
+                p.circle(layerGap * i, (M - this.layers[i].row + 2 * j) * nodeGap / 2, radius * 2)
+            }
+        }
+        p.pop()
     }
 }

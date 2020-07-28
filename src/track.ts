@@ -96,6 +96,7 @@ export default class Track {
     }
 
     public draw(p: p5): void {
+        p.push()
         p.translate(p.width / 2 - this.cars[this.furthest].pos.x, p.height / 2 - this.cars[this.furthest].pos.y)
 
         if (this.deadCount === this.population) {
@@ -144,6 +145,9 @@ export default class Track {
         }
         p.stroke(255)
         p.strokeWeight(1)
+
+        p.pop()
+        this.cars[this.furthest].network.show(p);
     }
 
     static colorDictionary(idx: number): [number, number, number] {
