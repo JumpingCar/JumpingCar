@@ -144,9 +144,9 @@ export class Car {
             this.pos.add(this.vel);
             this.distance += this.vel.mag()
         }
-        this.show(p)
         this.makeray(p)
         this.look(p)
+        this.show(p)
     }
 
     look(p: p5): void {
@@ -184,10 +184,10 @@ export class Car {
     show(p: p5): void {
         p.fill(...this.color)
         p.noStroke()
-        p.circle(this.pos.x, this.pos.y, this.radius * 2)
         for (const ray of this.rays) {
             ray.show(p);
         }
+        p.circle(this.pos.x, this.pos.y, this.radius * 2)
         p.stroke(255)
     }
 
