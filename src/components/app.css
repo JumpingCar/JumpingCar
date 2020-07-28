@@ -2,13 +2,12 @@
     background-color: #323232;
 }
 
-#gene-editor {
+#gene-editor, #map-editor {
     height: 500px;
     width: 600px;
     margin: 0 auto;
     display: flex;
     justify-content: center;
-    margin-top: 50px;
     padding: 10px 30px;
     background-color: #323232;
     border-radius: 10px;
@@ -16,12 +15,12 @@
     text-align: center;
 }
 
-#gene-editor .header {
+.header {
     margin-bottom: 10px;
     color: #fff;
 }
 
-#gene-editor textarea {
+textarea {
     background-color: #292929;
     color: #fff;
     font-family: Consolas monospace;
@@ -31,31 +30,31 @@
     border-color: #323232;
 }
 
-#gene-editor textarea:focus {
+textarea:focus {
     outline: none;
 }
 
-#gene-editor button {
+#gene-editor button, #map-editor button {
     width: 180px;
     height: 30px;
     background-color: rgb(107, 164, 255);
     border-radius: 10px;
     font-size: 17px;
-    color: #292929;
+    color: #eee;
     border: none;
 }
 
-#gene-editor .buttons {
+#gene-editor .buttons, #map-editor .buttons {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
 }
 
-#gene-editor button:focus {
+#gene-editor button:focus, #map-editor button:focus {
     outline: none;
 }
 
-#gene-editor button:active {
+#gene-editor button:active, #map-editor button:active {
     background-color: rgb(79, 146, 255);
 }
 

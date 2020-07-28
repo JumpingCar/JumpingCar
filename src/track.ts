@@ -67,16 +67,16 @@ export default class Track {
             this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, i))
         }
 
-        const exportButton = p.select('#export')
-        const importButton = p.select('#import')
-        const textArea = p.select('#gene-editor-textarea')
-        exportButton.mousePressed(() => {
+        const exportGenesButton = p.select('#gene-export')
+        const importGenesButton = p.select('#gene-import')
+        const geneEditor = p.select('#gene-editor-textarea')
+        exportGenesButton.mousePressed(() => {
             const exportValue = this.cars.map(car => car.network.exportGenes().join(' ')).join('\n')
-            textArea.value(exportValue)
+            geneEditor.value(exportValue)
         })
 
-        importButton.mousePressed(() => {
-            const importValue: string = textArea.value().toString()
+        importGenesButton.mousePressed(() => {
+            const importValue: string = geneEditor.value().toString()
             const genes: number[][] = importValue.split('\n').map(row => row.split(' ').map(val => parseFloat(val)))
 
             this.generations = 0
