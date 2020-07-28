@@ -88,24 +88,6 @@ export class Car {
         const max = Math.max(Math.max(output.matrix[0][0], output.matrix[1][0]), output.matrix[2][0])
 
         if (!this.dead) {
-
-            // if(this.isJumping) {
-            //     if(this.jumpTime < 30) {
-            //         this.radius += 0.2 //중력가속도
-            //         this.jumpTime += 1
-            //     }
-
-            //     if(this.jumpTime >= 30) {
-            //         this.radius -= 0.2
-            //         this.jumpTime += 1
-            //     }
-
-            //     if(this.jumpTime > 60) {
-            //         this.isJumping = false
-            //         this.jumpTime = 0
-            //     }
-
-            // }
             let theta : number;
             theta = -p.PI / 4 //turn left
             const left : p5.Vector = p.createVector(
