@@ -134,6 +134,8 @@ export default class Track {
             }
         }
 
+        document.getElementById("#lap-count").innerHTML = `Lap Count: ${Math.floor(this.cars[this.furthest].currentSection / this.sections.length)}`
+
         // draw track
         p.strokeWeight(3)
         p.stroke(107, 164, 255)

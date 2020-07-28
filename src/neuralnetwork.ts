@@ -187,6 +187,10 @@ export default class NeuralNetwork {
             for (let j = 0; j < this.layers[i].row; j++) {
                 p.fill(182, this.layers[i].matrix[j][0], 100)
                 p.circle(layerGap * i, (M - this.layers[i].row + 2 * j) * nodeGap / 2, radius * 2)
+
+                if (i === this.layers.length - 1) {
+                    p.text(Math.round(this.layers[i].matrix[j][0] * 100) / 100, layerGap * i + 18, (M - this.layers[i].row + 2 * j) * nodeGap / 2 + 5)
+                }
             }
         }
         p.pop()
