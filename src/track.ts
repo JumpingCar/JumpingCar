@@ -9,6 +9,21 @@ export interface Section {
     mid: p5.Vector
 }
 
+interface SerializedSection {
+    left: {
+        x: number,
+        y: number
+    },
+    mid: {
+        x: number,
+        y: number
+    },
+    right: {
+        x: number,
+        y: number
+    },
+}
+
 export default class Track {
     points: p5.Vector[]
     hull: p5.Vector[]
@@ -92,6 +107,43 @@ export default class Track {
             ]
 
             this.cars.forEach((car, idx) => car.reset(p, startingPoint, perpVec, initialWalls, genes[idx]))
+        })
+
+        const exportMapButton = p.select('#map-export')
+        const importMapButton = p.select('#map-import')
+        const mapEditor = p.select('#map-editor-textarea')
+        exportMapButton.mousePressed(() => {
+            const mapData = JSON.stringify(this.sections.map(section => ({
+                left: { x: section.left.x, y: section.left.y },
+                mid: { x: section.mid.x, y: section.mid.y },
+                right: { x: section.right.x, y: section.right.y }
+            })))
+            mapEditor.value(mapData)
+        })
+
+        importMapButton.mousePressed(() => {
+            if (mapEditor.value() === '')
+                return
+
+            this.generations = 0
+            this.deadCount = 0
+            this.fittest = 0
+
+            this.sections = JSON.parse(mapEditor.value().toString()).map((section: SerializedSection) => ({
+                left: p.createVector(section.left.x, section.left.y),
+                mid: p.createVector(section.mid.x, section.mid.y),
+                right: p.createVector(section.right.x, section.right.y),
+            }))
+
+            const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
+            const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
+            const initialWalls = [
+                new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[0].right.x, this.sections[0].right.y),
+                new Boundary(p, this.sections[0].left.x, this.sections[0].left.y, this.sections[1].left.x, this.sections[1].left.y),
+                new Boundary(p, this.sections[0].right.x, this.sections[0].right.y, this.sections[1].right.x, this.sections[1].right.y)
+            ]
+
+            this.cars.forEach(car => car.toStartingPoint(p, startingPoint, perpVec, initialWalls))
         })
     }
 

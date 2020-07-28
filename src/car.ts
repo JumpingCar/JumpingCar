@@ -224,6 +224,20 @@ export class Car {
         this.network.importGenes(genes)
     }
 
+    toStartingPoint(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]): void {
+        this.pos = startingPoint.copy()
+        this.vel = direction.copy()
+        this.acc = direction.copy()
+        this.currentSection = 0
+        this.walls = walls
+        this.makeray(p)
+        this.dead = false
+        this.fitness = 0
+        this.closeEncounter = 0
+        this.raySensor = new Array(this.rays.length).fill(this.sight)
+        this.distance = 0
+    }
+
     reset(p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], genes: number[]): void {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
