@@ -189,7 +189,7 @@ export default class Track {
     }
 
     generateNextGenAlt(p: p5): void {
-        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+        const sorted = [...this.cars].sort((p1, p2) => p2.fitness - p1.fitness)
 
         // 50 total
         // 3 are top 3
@@ -224,6 +224,11 @@ export default class Track {
         for (let i = 0; i < softMutationCount; i++)
             NeuralNetwork.mutateOne(offsprings[hardMutationCount + i], 0.05)
 
+        // 0 ~ 7: topParent
+        // 8 ~ 19: random
+        // 20 ~ 39: soft mutation
+        // 40 ~ 59: hard mutation
+        // 60 ~ 99: offspring/
         const children = [...topParents, ...random, ...offsprings]
 
         const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
