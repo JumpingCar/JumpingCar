@@ -269,7 +269,7 @@ export default class Track {
         const hardMutationCount = 20
 
         const topParents = [...Array(topCount).keys()].map(idx => sorted[idx].network.exportGenes())
-        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(9, 6, 3)).exportGenes())
+        const random = [...Array(randomCount).keys()].map(_ => (new NeuralNetwork(9, 6, 4)).exportGenes())
 
         const parentPairs = Car.selection(this.cars, (offspringCount + hardMutationCount + softMutationCount) / 2)
         const offsprings: number[][] = parentPairs.reduce((nextgen, pair) => {

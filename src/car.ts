@@ -46,7 +46,7 @@ export class Car {
         this.jumpTime = 0;
         this.makeray(p)
         this.raySensor = new Array(this.rays.length).fill(0)
-        this.network = new NeuralNetwork(this.raySensor.length, 6, 3)
+        this.network = new NeuralNetwork(this.raySensor.length, 6, 4)
         this.id = id
         this.color = Track.colorDictionary(this.id)
 
@@ -89,30 +89,35 @@ export class Car {
 
         if (!this.dead) {
             let theta : number;
-            theta = -p.PI / 4 //turn left
-            const left : p5.Vector = p.createVector(
-                this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
-                this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
-            )
 
-            theta = p.PI / 4 //turn right
-            const right : p5.Vector =  p.createVector(
-                this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
-                this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
-            )
+
+            const rotateVector = this.vel.copy()
+            rotateVector.rotate((output.matrix[3][0] - 50) / 50 * 9 / 20 * p.PI)
+
+            // theta = -p.PI / 4 //turn left
+            // const left : p5.Vector = p.createVector(
+            //     this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
+            //     this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
+            // )
+
+            // theta = p.PI / 4 //turn right
+            // const right : p5.Vector =  p.createVector(
+            //     this.vel.x * p.cos(theta) - this.vel.y * p.sin(theta),
+            //     this.vel.x * p.sin(theta) + this.vel.y * p.cos(theta)
+            // )
 
             if (decisions[0]) {
-                this.acc = left
+                this.acc = rotateVector
                 // this.acc.limit(0.3)
                 // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
                 this.acc.limit(1)
-                this.acc.rotate(-max / 100 * p.PI / 5)
+                // this.acc.rotate(-max / 100 * p.PI / 5)
             } else if (decisions[1]) {
-                this.acc = right
+                this.acc = rotateVector
                 // this.acc.limit(0.3)
                 // this.acc.setMag(this.acc.mag() + max / 100 * 0.3)
                 this.acc.limit(1)
-                this.acc.rotate(max / 100 * p.PI / 5)
+                // this.acc.rotate(max / 100 * p.PI / 5)
             } else {
                 this.acc.limit(0.02)
             }
@@ -156,7 +161,7 @@ export class Car {
 
             if (record < this.radius) {
                 this.dead = true
-                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100) - this.closeEncounter / this.rays.length
+                this.fitness = Math.sqrt((this.currentSection + 1) * this.distance / 100)
                 if (this.fitness < 0)
                     this.fitness = 1
                 // console.log("Current Distance ", this.distance)
