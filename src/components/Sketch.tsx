@@ -15,11 +15,10 @@ const sketch = (p: p5): void => {
     p.setup = (): void => {
         p.createCanvas(p.windowWidth, p.windowHeight)
         p.createSpan("Generations: 0").id("#count").position(20, 20).style('color', '#fff').style('font-size', '30px')
-        p.createSpan("Alive: 100").id("#alive").position(20, 60).style('color', '#fff').style('font-size', '30px')
+        p.createSpan("Alive: 100 / 100").id("#alive").position(20, 60).style('color', '#fff').style('font-size', '30px')
         p.createSpan("Fittest").id("#fittest").position(20, 100).style('color', '#fff').style('font-size', '30px')
 
         for (let i = 0; i < colorDictionary.length; i++) {
-            // p.createSpan().class('color').style(`background-color: rgb(${colorDictionary[i].color[0]}, ${colorDictionary[i].color[1]}, ${colorDictionary[i].color[2]})`)
             p.createSpan().class('color').position(20, 150 + i * 40).style('background-color', p.color(colorDictionary[i].color[0], colorDictionary[i].color[1], colorDictionary[i].color[2]))
             p.createSpan(colorDictionary[i].label).class('color-label').position(50, 150 + i * 40)
         }

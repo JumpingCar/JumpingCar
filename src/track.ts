@@ -103,6 +103,7 @@ export default class Track {
             this.generateNextGenAlt(p)
             this.generations += 1
             document.getElementById("#count").innerHTML = `Generations: ${this.generations}`
+            document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount} / ${this.population}`
             this.furthest = 0
             return
         }
@@ -119,7 +120,7 @@ export default class Track {
 
                 if (this.cars[i].dead) {
                     this.deadCount += 1
-                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount}`
+                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount} / ${this.population}`
                     if (this.fittest < this.cars[i].fitness) {
                         this.fittest = this.cars[i].fitness
                         document.getElementById("#fittest").innerHTML = `Fittest: ${Math.round(this.fittest * 100) / 100}`
