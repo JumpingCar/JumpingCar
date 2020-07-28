@@ -58,3 +58,14 @@
 #gene-editor button:active {
     background-color: rgb(79, 146, 255);
 }
+
+.color {
+    width: 20;
+    height: 20;
+    border-radius: 10px;
+}
+
+.color-label {
+    color: #fff;
+    text-align: center;
+}

@@ -64,7 +64,7 @@ export default class Track {
 
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, i))
         }
 
         const exportButton = p.select('#export')
@@ -143,6 +143,25 @@ export default class Track {
         }
         p.stroke(255)
         p.strokeWeight(1)
+    }
+
+    static colorDictionary(idx: number): [number, number, number] {
+        const topCount = 8
+        const randomCount = 12
+        const offspringCount = 40
+        const softMutationCount = 20
+        const hardMutationCount = 20
+
+        if (idx < topCount)
+            return [252, 53, 3]
+        else if (idx < topCount + randomCount)
+            return [252, 152, 3]
+        else if (idx < topCount + randomCount + hardMutationCount)
+            return [173, 252, 3]
+        else if (idx < topCount + randomCount + hardMutationCount + softMutationCount)
+            return [3, 161, 252]
+        else
+            return [186, 3, 252]
     }
 
     generateNextGen(p: p5): void {

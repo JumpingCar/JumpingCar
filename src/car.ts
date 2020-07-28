@@ -2,6 +2,7 @@ import * as p5 from 'p5';
 import { Ray } from './ray';
 import { Boundary } from './boundary';
 import Matrix from './matrix';
+import Track from './track';
 import NeuralNetwork from './neuralnetwork';
 import { Section } from './track'
 import MathUtils from './utils/MathUtils'
@@ -27,8 +28,9 @@ export class Car {
     jumpDistance : number
     distance: number
     closeEncounter: number
+    id: number
 
-    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[]) {
+    constructor (p: p5, startingPoint: p5.Vector, direction: p5.Vector, walls: Boundary[], id: number) {
         this.pos = startingPoint.copy()
         this.vel = direction.copy()
         this.acc = direction.copy()
@@ -45,13 +47,14 @@ export class Car {
         this.makeray(p)
         this.raySensor = new Array(this.rays.length).fill(this.sight)
         this.network = new NeuralNetwork(this.raySensor.length, 6, 3)
+        this.id = id
+        this.color = Track.colorDictionary(this.id)
 
         this.jumpRays = [
             new Ray(this.pos, this.angle - p.PI / 4, this.jumpDistance),
             new Ray(this.pos, this.angle, this.jumpDistance),
             new Ray(this.pos, this.angle + p.PI / 4, this.jumpDistance)
         ]
-        this.color = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
         this.distance = 0
     }
 
