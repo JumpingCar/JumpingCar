@@ -64,7 +64,7 @@ export default class Track {
 
         const perpVec = p5.Vector.sub(this.sections[0].right, this.sections[0].left).normalize().rotate(p.HALF_PI)
         for (let i = 0; i < this.population; i++) {
-            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls))
+            this.cars.push(new Car(p, startingPoint, perpVec, initialWalls, i))
         }
 
         const exportButton = p.select('#export')
@@ -103,6 +103,7 @@ export default class Track {
             this.generateNextGenAlt(p)
             this.generations += 1
             document.getElementById("#count").innerHTML = `Generations: ${this.generations}`
+            document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount} / ${this.population}`
             this.furthest = 0
             return
         }
@@ -119,7 +120,7 @@ export default class Track {
 
                 if (this.cars[i].dead) {
                     this.deadCount += 1
-                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount}`
+                    document.getElementById("#alive").innerHTML = `Alive: ${this.population - this.deadCount} / ${this.population}`
                     if (this.fittest < this.cars[i].fitness) {
                         this.fittest = this.cars[i].fitness
                         document.getElementById("#fittest").innerHTML = `Fittest: ${Math.round(this.fittest * 100) / 100}`
@@ -143,6 +144,25 @@ export default class Track {
         }
         p.stroke(255)
         p.strokeWeight(1)
+    }
+
+    static colorDictionary(idx: number): [number, number, number] {
+        const topCount = 8
+        const randomCount = 12
+        const offspringCount = 40
+        const softMutationCount = 20
+        const hardMutationCount = 20
+
+        if (idx < topCount)
+            return [252, 53, 3]
+        else if (idx < topCount + randomCount)
+            return [252, 152, 3]
+        else if (idx < topCount + randomCount + hardMutationCount)
+            return [173, 252, 3]
+        else if (idx < topCount + randomCount + hardMutationCount + softMutationCount)
+            return [3, 161, 252]
+        else
+            return [186, 3, 252]
     }
 
     generateNextGen(p: p5): void {
@@ -170,7 +190,7 @@ export default class Track {
     }
 
     generateNextGenAlt(p: p5): void {
-        const sorted = this.cars.sort((p1, p2) => p2.fitness - p1.fitness)
+        const sorted = [...this.cars].sort((p1, p2) => p2.fitness - p1.fitness)
 
         // 50 total
         // 3 are top 3
@@ -205,6 +225,11 @@ export default class Track {
         for (let i = 0; i < softMutationCount; i++)
             NeuralNetwork.mutateOne(offsprings[hardMutationCount + i], 0.05)
 
+        // 0 ~ 7: topParent
+        // 8 ~ 19: random
+        // 20 ~ 39: soft mutation
+        // 40 ~ 59: hard mutation
+        // 60 ~ 99: offspring/
         const children = [...topParents, ...random, ...offsprings]
 
         const startingPoint = p5.Vector.add(p5.Vector.mult(this.sections[0].mid, 0.8), p5.Vector.mult(this.sections[1].mid, 0.2))
