@@ -1,4 +1,4 @@
-# JumpCar
+# JumpingCar
 
 <img src="https://i.imgur.com/gZUgufI.png" width="400">
 
