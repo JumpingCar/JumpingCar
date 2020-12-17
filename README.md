@@ -12,6 +12,11 @@ Not knowing a single thing about AI nor neural networks, we thought that it woul
 ## About
 The objective of this simulation is to generate units that drive for as far as it can. Every unit has its own neural network, making decisions which way to go on every frame. 
 
+## How to use
+Run the below command.   
+  npm i
+  npm run dev
+
 ### Random Map Generation
 Maps are randomly generated on every refresh utilizing the gift wrapping algorithm. Eventually, the map is defined as a set of points, which can be freely exported and imported from and to the project at any time.
 
