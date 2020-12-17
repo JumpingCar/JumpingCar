@@ -14,8 +14,10 @@ The objective of this simulation is to generate units that drive for as far as i
 
 ## How to use
 Run the below command.   
-  npm i
-  npm run dev
+
+
+    npm i
+    npm run dev
 
 ### Random Map Generation
 Maps are randomly generated on every refresh utilizing the gift wrapping algorithm. Eventually, the map is defined as a set of points, which can be freely exported and imported from and to the project at any time.
